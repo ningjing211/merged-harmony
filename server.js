@@ -7,11 +7,76 @@ const app = express();
 const port = 3000;
 
 const iconv = require('iconv-lite');
+const chokidar = require('chokidar');
 
+// 定義來源和目標資料夾路徑
+const sourceDir = path.join(__dirname, 'public', 'uploads');
+const targetDir = path.join(__dirname, 'dist', 'uploads');
 
+// 資料夾同步函式
+function copyFolderSync(src, dest) {
+    if (!fs.existsSync(dest)) {
+        fs.mkdirSync(dest, { recursive: true });
+    }
+
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+
+    entries.forEach(entry => {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+
+        if (entry.isDirectory()) {
+            copyFolderSync(srcPath, destPath); // 遞迴處理子資料夾
+        } else {
+            fs.copyFileSync(srcPath, destPath); // 複製檔案
+        }
+    });
+}
+
+// 初始化監視器
+const watcher = chokidar.watch(sourceDir, {
+    persistent: true, // 保持監視器運行
+    ignoreInitial: false, // 初始時不忽略現有檔案
+});
+
+// 監聽檔案變動事件
+watcher.on('all', (event, path) => {
+    console.log(`[${event}] ${path}`);
+    // 每當有變動時，將來源資料夾同步到目標資料夾
+    copyFolderSync(sourceDir, targetDir);
+    console.log(`同步完成: ${sourceDir} -> ${targetDir}`);
+});
 
 // 設定靜態資源
 app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'dist')));
+
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/src', express.static(path.join(__dirname, 'src')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist/index.html'));
+  });
+
+  app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+
+// 提供 JSON 檔案資料的 API
+app.get('/api/images', (req, res) => {
+    const jsonFilePath = path.join(__dirname, 'imagesOrder.json');
+    fs.readFile(jsonFilePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading JSON file:', err);
+            res.status(500).send('Error reading data');
+        } else {
+          res.json(JSON.parse(data));
+        }
+    });
+  });
 
 // 動態設置上傳目標資料夾
 const storage = multer.diskStorage({
@@ -189,14 +254,18 @@ app.post('/update-images-order', (req, res) => {
 
 app.post('/upload-image/:folderName/:index', upload.single('image'), async (req, res) => {
     const folderName = req.params.folderName;
+    console.log('先印出foldername1', folderName);
     const index = Number(req.params.index);
-    console.log(index);
+    console.log('print index', index);
+    const imageDescription = req.params.imageDescription;
+    console.log('imageDescription', imageDescription);
     const filePath = path.join(__dirname, 'imagesOrder.json');
     console.log(filePath);
     try {
         // 讀取 imagesOrder.json
         const data = await fs.promises.readFile(filePath, 'utf8');
         let imagesOrder = JSON.parse(data);
+        console.log('先印出foldername2', folderName);
         const group = imagesOrder.find(g => g.folderName === folderName);
         console.log(group);
         if (!group) {
@@ -227,7 +296,7 @@ app.post('/upload-image/:folderName/:index', upload.single('image'), async (req,
             image.name = imageFileName;
             console.log('xxx', image.path)
         } else {
-            group.additionalImages.push({ name: imageFileName, path: `/uploads/${folderName}/${imageFileName}` });
+            group.additionalImages.push({ name: imageFileName, path: `/uploads/${folderName}/${imageFileName}`, imageDescription: imageDescription});
         }
 
         // 寫回更新後的 imagesOrder.json
@@ -358,7 +427,7 @@ app.post('/remove-image', async (req, res) => {
                             console.log('theOldName', theOldName);
                             const nextUpIndex = index + 1;
                             group.additionalImages[index].name = `${nextUpIndex}.jpg`;
-                            group.additionalImages[index].path = `/uploads/image-1/${nextUpIndex}.jpg`;
+                            group.additionalImages[index].path = `/uploads/${folderName}/${nextUpIndex}.jpg`;
                             const theNewName = group.additionalImages[index].name;
                             console.log('theNewName', theNewName);
 
@@ -457,6 +526,170 @@ app.post('/remove-image', async (req, res) => {
     } catch (err) {
         console.error('Error processing remove request:', err);
         res.status(500).json({ error: 'Failed to process remove request' });
+    }
+});
+
+// 創建資料夾 API
+app.post('/create-folder', (req, res) => {
+    const { folderName } = req.body;
+    const targetFolder = path.join(__dirname, 'uploads', folderName);
+    
+    if (!fs.existsSync(targetFolder)) {
+        fs.mkdirSync(targetFolder, { recursive: true });
+    }
+    res.status(200).send({ message: 'Folder created or already exists' });
+});
+
+// 複製圖片 API
+// 複製圖片 API
+app.post('/copy-image', async (req, res) => {
+    try {
+        const { folderName, newFileName } = req.body; // 確認接收到 folderName 和 newFileName
+        console.log('folderName:', folderName);
+        console.log('newFileName:', newFileName);
+
+        // 定義來源和目標路徑
+        const sourcePath = path.join(__dirname, 'uploads', 'upload.jpg');
+        const destinationPath = path.join(__dirname, folderName, `${newFileName}.jpg`);
+
+        // 複製檔案
+        await fs.promises.copyFile(sourcePath, destinationPath);
+        console.log(`Successfully copied to ${destinationPath}`);
+
+        // 回應成功訊息
+        res.json({ message: `Successfully copied to ${destinationPath}` });
+    } catch (err) {
+        console.error('Error copying file:', err);
+        res.status(500).json({ error: 'Failed to copy file' });
+    }
+});
+
+
+app.post('/update-group-name', async (req, res) => {
+    const { oldFolderName, newFolderName } = req.body;
+
+    const imagesOrderPath = path.join(__dirname, 'imagesOrder.json');
+    const oldFolderPath = path.join(__dirname, 'uploads', oldFolderName);
+    const newFolderPath = path.join(__dirname, 'uploads', newFolderName);
+
+    try {
+        // 1. 更新 imagesOrder.json
+        console.log('Step 1: Updating imagesOrder.json');
+        const data = await fs.promises.readFile(imagesOrderPath, 'utf8');
+        const imagesOrder = JSON.parse(data);
+
+        const group = imagesOrder.find(g => g.folderName === oldFolderName);
+        if (!group) {
+            return res.status(404).json({ error: 'Folder not found in imagesOrder.json' });
+        }
+
+        // 檢查新名稱是否已被使用
+        const isNameUsed = imagesOrder.some(group => group.folderName === newFolderName);
+        if (isNameUsed) {
+            return res.status(400).json({ error: '此名稱已被使用，請使用別的。' });
+        }
+
+        group.folderName = newFolderName;
+        group.title = newFolderName;
+        group.path = group.path.replace(`/uploads/${oldFolderName}/${oldFolderName}.jpg`, `/uploads/${newFolderName}/${newFolderName}.jpg`); // 更新 group.path
+
+        
+        group.additionalImages.forEach(image => {
+            image.name = image.name.replace(oldFolderName, newFolderName);
+            image.path = image.path.replace(`/uploads/${oldFolderName}/`, `/uploads/${newFolderName}/`);
+        });
+
+        await fs.promises.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
+        console.log('imagesOrder.json updated successfully.');
+
+        // 2. 更改封面圖片名稱
+        console.log('Step 2: Renaming cover image');
+        const oldCoverPath = path.join(oldFolderPath, `${oldFolderName}.jpg`);
+        const newCoverPath = path.join(oldFolderPath, `${newFolderName}.jpg`);
+        if (fs.existsSync(oldCoverPath)) {
+            await fs.promises.rename(oldCoverPath, newCoverPath);
+            console.log('Cover image renamed successfully.');
+        } else {
+            console.log('No cover image found to rename.');
+        }
+
+        // 3. 更改資料夾名稱
+        console.log('Step 3: Renaming folder');
+        if (fs.existsSync(oldFolderPath)) {
+            await fs.promises.rename(oldFolderPath, newFolderPath);
+            console.log('Folder renamed successfully.');
+        } else {
+            return res.status(404).json({ error: 'Folder not found in file system' });
+        }
+
+        res.json({ message: 'Group name updated successfully.' });
+    } catch (error) {
+        console.error('Error updating group name:', error);
+        res.status(500).json({ error: 'Failed to update group name' });
+    }
+});
+
+// async function addDescriptionFieldToImagesOrder() {
+//     const imagesOrderPath = path.join(__dirname, 'imagesOrder.json');
+
+//     try {
+//         // 讀取 imagesOrder.json
+//         const data = await fs.promises.readFile(imagesOrderPath, 'utf8');
+//         const imagesOrder = JSON.parse(data);
+
+//         // 為每個 additionalImages 添加 description 欄位
+//         imagesOrder.forEach(group => {
+//             group.additionalImages.forEach(image => {
+//                 if (!image.description) {
+//                     image.description = ""; // 默認設置為空字串
+//                 }
+//             });
+//         });
+
+//         // 寫回更新後的 imagesOrder.json
+//         await fs.promises.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
+//         console.log('Description field added to additionalImages successfully.');
+//     } catch (error) {
+//         console.error('Error adding description field:', error);
+//     }
+// }
+
+// 調用函數
+// addDescriptionFieldToImagesOrder();
+// 更新圖片描述的 API
+app.post('/update-image-description', async (req, res) => {
+    const { folderName, fileName, newDescription } = req.body;
+
+    // 1. 定義文件路徑
+    const imagesOrderPath = path.join(__dirname, 'imagesOrder.json');
+
+    try {
+        // 2. 讀取並解析 imagesOrder.json
+        const data = await fs.promises.readFile(imagesOrderPath, 'utf8');
+        const imagesOrder = JSON.parse(data);
+
+        // 3. 找到對應的資料夾
+        const group = imagesOrder.find(group => group.folderName === folderName);
+        if (!group) {
+            return res.status(404).json({ error: 'Folder not found in imagesOrder.json' });
+        }
+
+        // 4. 找到對應的圖片並更新描述
+        const image = group.additionalImages.find(img => img.name === fileName);
+        if (!image) {
+            return res.status(404).json({ error: 'Image not found in the specified folder' });
+        }
+
+        image.imageDescription = newDescription;
+
+        // 5. 寫回更新後的 imagesOrder.json
+        await fs.promises.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
+        console.log('Image description updated successfully.');
+
+        res.json({ message: 'Image description updated successfully' });
+    } catch (err) {
+        console.error('Error updating image description:', err);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 

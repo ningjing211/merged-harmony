@@ -14,7 +14,6 @@
 
 .caption {
     font-size: 14px;
-    color: #333;
 }
 
 img {
@@ -46,6 +45,9 @@ img {
 
 .imageItem {
     text-align: center;
+    display: block;
+    width: 31%;
+    text-align: left;
 }
 
 .coverDiv {
@@ -57,7 +59,7 @@ img {
 
 .videoContainer {
     display: flex;
-    width: 40%;
+    width: 44%;
     align-self: self-start;
     flex-direction: column;
 }
@@ -80,5 +82,39 @@ img {
 
 .uploadMoreImage {
     text-align: center;
-    margin: 10px;
+    display: block;
+    width: 100%;
+    margin: 10px 10px 10px 0;
+    border-bottom: 1px dotted #333;
+    padding: 30px 0 10px 0;
+}
+
+.uploadMoreImage button {
+    min-height: 48px;
+}
+
+.image-description{
+    background-color: #ececec;
+    padding: 20px;
+    font-size: 16px;
+    border: 1px solid #b6b6b6;
+    margin: 10px 0;
+}
+
+.description-input {
+    display: block;
+    width: 100%;
+    min-height: 50px;
+}
+
+.edit-save-button-description {
+    display: block;
+}
+
+.admin-title {
+    display: block;
+    width: 100%;
+    padding: 40px;
+    font-size: 18px;
+    text-align: center;
 }
