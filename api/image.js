@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 // 提供 JSON 檔案資料的 API
 export default function handler(req, res) {
-    const jsonFilePath = path.join(process.cwd(), 'imagesOrder.json');
+    const jsonFilePath = path.join(process.cwd(), 'public/imagesOrder.json');
 
     fs.readFile(jsonFilePath, 'utf8', (err, data) => {
         if (err) {
