@@ -48,7 +48,7 @@ function copyFolderSync(src, dest) {
 // });
 
 // 設定靜態資源
-app.use(express.static(path.join(__dirname)));
+// app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, 'dist')));
 
 
