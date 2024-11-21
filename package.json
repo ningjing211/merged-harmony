@@ -1,12 +1,37 @@
 {
+  "name": "turnaroundmodel",
+  "version": "1.0.0",
+  "description": "A 3D project using Three.js and Parcel",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html",
+    "postbuild": "cp -R public/* dist/",
+    "serve": "node server.js"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "staticFiles": {
+    "staticPath": "public",
+    "watcherGlob": "**"
+  },
   "dependencies": {
-    "all": "^0.0.0",
-    "axios": "^1.7.7",
     "cheerio": "^1.0.0",
-    "chokidar": "^4.0.1",
-    "express": "^4.21.1",
-    "fs": "^0.0.1-security",
-    "iconv-lite": "^0.6.3",
-    "multer": "^1.4.5-lts.1"
+    "dat.gui": "^0.7.7",
+    "express": "^4.19.2",
+    "gsap": "^3.12.5",
+    "sharp": "^0.33.5",
+    "three": "^0.126.1",
+    "troika-three-text": "^0.43.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.0",
+    "@babel/preset-env": "^7.14.0",
+    "@parcel/transformer-glsl": "^2.12.0",
+    "@parcel/transformer-image": "^2.0.0-rc.0",
+    "@parcel/transformer-sass": "^2.0.0-rc.0",
+    "gh-pages": "^6.1.1",
+    "parcel": "^2.12.0",
+    "parcel-plugin-static-files-copy": "^2.6.0",
+    "semver": "^7.6.3"
   }
 }
