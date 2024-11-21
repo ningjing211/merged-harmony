@@ -7,7 +7,7 @@ const app = express();
 const port = 3000;
 
 const iconv = require('iconv-lite');
-const chokidar = require('chokidar');
+// const chokidar = require('chokidar');
 
 // 定義來源和目標資料夾路徑
 const sourceDir = path.join(__dirname, 'public', 'uploads');
@@ -33,19 +33,19 @@ function copyFolderSync(src, dest) {
     });
 }
 
-// 初始化監視器
-const watcher = chokidar.watch(sourceDir, {
-    persistent: true, // 保持監視器運行
-    ignoreInitial: false, // 初始時不忽略現有檔案
-});
+// // 初始化監視器
+// const watcher = chokidar.watch(sourceDir, {
+//     persistent: true, // 保持監視器運行
+//     ignoreInitial: false, // 初始時不忽略現有檔案
+// });
 
 // 監聽檔案變動事件
-watcher.on('all', (event, path) => {
-    console.log(`[${event}] ${path}`);
-    // 每當有變動時，將來源資料夾同步到目標資料夾
-    copyFolderSync(sourceDir, targetDir);
-    console.log(`同步完成: ${sourceDir} -> ${targetDir}`);
-});
+// watcher.on('all', (event, path) => {
+//     console.log(`[${event}] ${path}`);
+//     // 每當有變動時，將來源資料夾同步到目標資料夾
+//     copyFolderSync(sourceDir, targetDir);
+//     console.log(`同步完成: ${sourceDir} -> ${targetDir}`);
+// });
 
 // 設定靜態資源
 app.use(express.static(path.join(__dirname)));
