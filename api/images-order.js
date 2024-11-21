@@ -1,37 +1,57 @@
-app.get('/api/images-order', (req, res) => {
-    const uploadsDir = path.join(__dirname, 'uploads');
-    const imagesOrderPath = path.join(__dirname, 'imagesOrder.json');
+import fs from 'fs/promises';
+import path from 'path';
 
-    fs.readFile(imagesOrderPath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: 'Failed to load image order' });
-        }
+export default async function handler(req, res) {
+  try {
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    const imagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
 
-        let imagesOrder = JSON.parse(data);
+    // 讀取 `imagesOrder.json` 檔案
+    let imagesOrderData;
+    try {
+      imagesOrderData = await fs.readFile(imagesOrderPath, 'utf8');
+    } catch (err) {
+      console.error('Error reading imagesOrder.json:', err);
+      return res.status(500).json({ error: 'Failed to load image order' });
+    }
 
-        // 將 `imagesOrder.json` 中的內容與 `uploads` 資料夾同步
-        imagesOrder.forEach(group => {
-            const folderPath = path.join(uploadsDir, group.folderName);
-            if (fs.existsSync(folderPath)) {
-                let files = fs.readdirSync(folderPath).filter(file => !file.startsWith('.'));
+    let imagesOrder;
+    try {
+      imagesOrder = JSON.parse(imagesOrderData);
+    } catch (err) {
+      console.error('Error parsing JSON:', err);
+      return res.status(500).json({ error: 'Invalid JSON format in imagesOrder.json' });
+    }
 
-                // 確認封面圖片
-                const titleImage = files.find(file => file === `${group.folderName}.jpg`);
-                const otherImages = files.filter(file => file !== `${group.folderName}.jpg`).sort();
+    // 遍歷每個群組，確認封面和其他圖片
+    for (const group of imagesOrder) {
+      const folderPath = path.join(uploadsDir, group.folderName);
 
-                // 更新 `group.files` 結構以包含封面和其他圖片
-                group.files = [
-                    titleImage ? { name: titleImage, path: `/uploads/${group.folderName}/${titleImage}`, isTitle: true } : null,
-                    ...otherImages.map((file, index) => ({
-                        name: file,
-                        path: `/uploads/${group.folderName}/${file}`,
-                        isTitle: false,
-                        index: index + 1
-                    }))
-                ].filter(Boolean); // 過濾掉可能的 null 值
-            }
-        });
+      try {
+        const files = await fs.readdir(folderPath);
+        const filteredFiles = files.filter(file => !file.startsWith('.'));
 
-        res.json(imagesOrder);
-    });
-});
+        const titleImage = filteredFiles.find(file => file === `${group.folderName}.jpg`);
+        const otherImages = filteredFiles.filter(file => file !== `${group.folderName}.jpg`).sort();
+
+        group.files = [
+          titleImage ? { name: titleImage, path: `/uploads/${group.folderName}/${titleImage}`, isTitle: true } : null,
+          ...otherImages.map((file, index) => ({
+            name: file,
+            path: `/uploads/${group.folderName}/${file}`,
+            isTitle: false,
+            index: index + 1,
+          })),
+        ].filter(Boolean); // 過濾掉可能的 null 值
+      } catch (err) {
+        console.error(`Error reading directory ${folderPath}:`, err);
+        group.files = []; // 若目錄不存在，設定為空
+      }
+    }
+
+    res.status(200).json(imagesOrder);
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
