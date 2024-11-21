@@ -132,7 +132,7 @@ const coverUpload = multer({ storage: coverStorage });
 
 
 // 在圖片上傳成功後，更新 imagesOrder.json
-app.post('/api/upload-cover/:folderName', coverUpload.single('coverImage'), (req, res) => {
+app.post('/upload-cover/:folderName', coverUpload.single('coverImage'), (req, res) => {
     const folderName = req.params.folderName;
     const filePath = path.join(__dirname, 'imagesOrder.json');
 
@@ -165,7 +165,7 @@ app.post('/api/upload-cover/:folderName', coverUpload.single('coverImage'), (req
 
 // API 路由：讀取 imagesOrder.json 並提供給前端
 // server.js
-app.get('/api/images-order', (req, res) => {
+app.get('/images-order', (req, res) => {
     const uploadsDir = path.join(__dirname, 'uploads');
     const imagesOrderPath = path.join(__dirname, 'imagesOrder.json');
 
@@ -207,7 +207,7 @@ app.get('/api/images-order', (req, res) => {
 
 // 更新影片連結的 API
 
-app.post('/api/update-video-url', (req, res) => {
+app.post('/update-video-url', (req, res) => {
     const { folderName, newUrl } = req.body; // Now req.body should be defined
     const filePath = path.join(__dirname, 'imagesOrder.json');
 
@@ -236,7 +236,7 @@ app.post('/api/update-video-url', (req, res) => {
     });
 });
 
-app.post('/api/update-images-order', (req, res) => {
+app.post('/update-images-order', (req, res) => {
     const newImagesOrder = req.body; // 獲取前端傳送的資料
     const filePath = path.join(__dirname, 'imagesOrder.json');
 
@@ -252,7 +252,7 @@ app.post('/api/update-images-order', (req, res) => {
     });
 });
 
-app.post('/api/upload-image/:folderName/:index', upload.single('image'), async (req, res) => {
+app.post('/upload-image/:folderName/:index', upload.single('image'), async (req, res) => {
     const folderName = req.params.folderName;
     console.log('先印出foldername1', folderName);
     const index = Number(req.params.index);
@@ -365,7 +365,7 @@ app.post('/reorder-images/:folderName', (req, res) => {
 // Serve uploads 資料夾中的圖片
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.post('/api/remove-image', async (req, res) => {
+app.post('/remove-image', async (req, res) => {
     const { folderName, imageName, imageIndex } = req.body;
     console.log(req.body);
     console.log('Received remove request:', { folderName, imageName, imageIndex }); // Debug log
@@ -530,7 +530,7 @@ app.post('/api/remove-image', async (req, res) => {
 });
 
 // 創建資料夾 API
-app.post('/api/create-folder', (req, res) => {
+app.post('/create-folder', (req, res) => {
     const { folderName } = req.body;
     const targetFolder = path.join(__dirname, 'uploads', folderName);
     
@@ -542,7 +542,7 @@ app.post('/api/create-folder', (req, res) => {
 
 // 複製圖片 API
 // 複製圖片 API
-app.post('/api/copy-image', async (req, res) => {
+app.post('/copy-image', async (req, res) => {
     try {
         const { folderName, newFileName } = req.body; // 確認接收到 folderName 和 newFileName
         console.log('folderName:', folderName);
@@ -565,7 +565,7 @@ app.post('/api/copy-image', async (req, res) => {
 });
 
 
-app.post('/api/update-group-name', async (req, res) => {
+app.post('/update-group-name', async (req, res) => {
     const { oldFolderName, newFolderName } = req.body;
 
     const imagesOrderPath = path.join(__dirname, 'imagesOrder.json');
@@ -657,7 +657,7 @@ app.post('/api/update-group-name', async (req, res) => {
 // 調用函數
 // addDescriptionFieldToImagesOrder();
 // 更新圖片描述的 API
-app.post('/api/update-image-description', async (req, res) => {
+app.post('/update-image-description', async (req, res) => {
     const { folderName, fileName, newDescription } = req.body;
 
     // 1. 定義文件路徑

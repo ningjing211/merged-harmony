@@ -4,7 +4,7 @@ $(document).ready(function () {
 
     function loadGallery() {
         $.ajax({
-            url: '/images-order',
+            url: '/api/images-order',
             method: 'GET',
             dataType: 'json',
             success: function (data) {
@@ -65,7 +65,7 @@ $(document).ready(function () {
         const galleryData = collectGalleryData(); // 使用 collectGalleryData 函數獲取資料
     
         $.ajax({
-            url: '/update-images-order',
+            url: '/api/update-images-order',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(galleryData),
@@ -200,7 +200,7 @@ $(document).ready(function () {
                                 
                                 // Send updated order to server
                                 $.ajax({
-                                    url: '/update-images-order',
+                                    url: '/api/update-images-order',
                                     method: 'POST',
                                     contentType: 'application/json',
                                     data: JSON.stringify(updatedGalleryData),
@@ -322,7 +322,7 @@ $(document).ready(function () {
             
                                 // 發送刪除請求
                                 $.ajax({
-                                    url: '/remove-image',
+                                    url: '/api/remove-image',
                                     method: 'POST',
                                     contentType: 'application/json',
                                     data: JSON.stringify({ folderName, imageName, imageIndex }),
@@ -508,7 +508,7 @@ $(document).ready(function () {
                     
                     // Send updated order to server
                     $.ajax({
-                        url: '/update-images-order',
+                        url: '/api/update-images-order',
                         method: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify(updatedGalleryData),
@@ -630,7 +630,7 @@ $(document).ready(function () {
 
                     // 發送刪除請求
                     $.ajax({
-                        url: '/remove-image',
+                        url: '/api/remove-image',
                         method: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ folderName, imageName, imageIndex }),
@@ -674,7 +674,7 @@ $(document).ready(function () {
         console.log('inside-file-name', fileName);
         console.log('更新圖片描述:', folderName, fileName, newDescription);
         $.ajax({
-            url: '/update-image-description',
+            url: '/api/update-image-description',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ folderName, fileName, newDescription }),
@@ -694,7 +694,7 @@ $(document).ready(function () {
     function updateGroupName(oldFolderName, newFolderName) {
         console.log('folderName, newName', oldFolderName, newFolderName);
         $.ajax({
-            url: '/update-group-name',
+            url: '/api/update-group-name',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ oldFolderName, newFolderName }),
@@ -733,7 +733,7 @@ $(document).ready(function () {
             console.log(group.folderName);
             // 檢查 targetFolder 是否存在，若不存在則創建（在前端執行會受到限制，實際應該在伺服器端執行）
             $.ajax({
-                url: `/create-folder`,
+                url: `/api/create-folder`,
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ folderName: group.folderName }),
@@ -747,7 +747,7 @@ $(document).ready(function () {
 
             // 請求複製 upload.jpg 到目標資料夾
             $.ajax({
-                url: `/copy-image`,
+                url: `/api/copy-image`,
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -848,7 +848,7 @@ $(document).ready(function () {
 
                 // Send delete request to the server
                 $.ajax({
-                    url: '/remove-image',
+                    url: '/api/remove-image',
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ folderName, imageName, imageIndex }), // 確保這裡包含 imageIndex
@@ -905,7 +905,7 @@ $(document).ready(function () {
             formData.append('image', file);
     
             $.ajax({
-                url: `/upload-image/${folderName}/${index}`,
+                url: `/api/upload-image/${folderName}/${index}`,
                 method: 'POST',
                 data: formData,
                 processData: false,
@@ -962,7 +962,7 @@ $(document).ready(function () {
         formData.append('coverImage', file);
 
         $.ajax({
-            url: `/upload-cover/${folderName}`,
+            url: `/api/upload-cover/${folderName}`,
             method: 'POST',
             data: formData,
             processData: false,
@@ -982,7 +982,7 @@ $(document).ready(function () {
 
     function updateVideoUrl(folderName, newUrl) {
         $.ajax({
-            url: `/update-video-url`,
+            url: `/api/update-video-url`,
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ folderName, newUrl }),
@@ -1002,7 +1002,7 @@ $(document).ready(function () {
         formData.append('coverImage', file);
     
         $.ajax({
-            url: `/upload-cover/${folderName}`,
+            url: `/api/upload-cover/${folderName}`,
             method: 'POST',
             data: formData,
             processData: false,
