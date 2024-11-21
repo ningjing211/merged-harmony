@@ -1,0 +1,120 @@
+.folder {
+    margin-bottom: 20px;
+}
+
+.imageContainer {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.imageItem {
+    text-align: center;
+    margin: 10px;
+}
+
+.caption {
+    font-size: 14px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.titleImageContainer {
+    display: flex;
+    justify-content: start;
+    margin-bottom: 20px;
+}
+
+.additionalImagesContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.uploadSection {
+    margin-bottom: 20px;
+}
+
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.imageItem {
+    text-align: center;
+    display: block;
+    width: 31%;
+    text-align: left;
+}
+
+.coverDiv {
+    width: 40%;
+    margin: 0 10px 0 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.videoContainer {
+    display: flex;
+    width: 44%;
+    align-self: self-start;
+    flex-direction: column;
+}
+.videoContainer button {
+    min-width: 100px;
+}
+.videoContainer input {
+    flex: 1;
+    min-width: 100px;
+}
+
+.videoContainer iframe {
+    display: flex;
+}
+
+.inputContainer {
+    display: flex;
+    gap: 10px;
+}
+
+.uploadMoreImage {
+    text-align: center;
+    display: block;
+    width: 100%;
+    margin: 10px 10px 10px 0;
+    border-bottom: 1px dotted #333;
+    padding: 30px 0 10px 0;
+}
+
+.uploadMoreImage button {
+    min-height: 48px;
+}
+
+.image-description{
+    background-color: #ececec;
+    padding: 20px;
+    font-size: 16px;
+    border: 1px solid #b6b6b6;
+    margin: 10px 0;
+}
+
+.description-input {
+    display: block;
+    width: 100%;
+    min-height: 50px;
+}
+
+.edit-save-button-description {
+    display: block;
+}
+
+.admin-title {
+    display: block;
+    width: 100%;
+    padding: 40px;
+    font-size: 18px;
+    text-align: center;
+}
