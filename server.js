@@ -10,8 +10,10 @@ const iconv = require('iconv-lite');
 const chokidar = require('chokidar');
 
 // 定義來源和目標資料夾路徑
-const sourceDir = path.join(__dirname,'uploads');
-const targetDir = path.join(__dirname, 'dist', 'uploads');
+const sourceDir = path.join(__dirname, 'uploads');
+const targetDir = path.join(__dirname, 'public', 'uploads');
+const imagesOrderFile = path.join(__dirname, 'imagesOrder.json');
+const imagesOrderTarget = path.join(__dirname, 'public', 'imagesOrder.json');
 
 // 資料夾同步函式
 function copyFolderSync(src, dest) {
@@ -33,19 +35,57 @@ function copyFolderSync(src, dest) {
     });
 }
 
-// 初始化監視器
-const watcher = chokidar.watch(sourceDir, {
-    persistent: true, // 保持監視器運行
-    ignoreInitial: false, // 初始時不忽略現有檔案
+// 清空目標資料夾
+function clearFolder(dest) {
+    if (fs.existsSync(dest)) {
+        fs.readdirSync(dest).forEach(file => {
+            const currentPath = path.join(dest, file);
+            if (fs.lstatSync(currentPath).isDirectory()) {
+                clearFolder(currentPath); // 遞迴刪除子資料夾
+            } else {
+                fs.unlinkSync(currentPath); // 刪除檔案
+            }
+        });
+        fs.rmdirSync(dest); // 刪除目標資料夾
+    }
+}
+
+// 同步單一檔案
+function syncFile(src, dest) {
+    if (fs.existsSync(src)) {
+        fs.copyFileSync(src, dest);
+        console.log(`檔案同步成功: ${src} -> ${dest}`);
+    }
+}
+
+// 初始化監視器（監視資料夾變動）
+const folderWatcher = chokidar.watch(sourceDir, {
+    persistent: true,
+    ignoreInitial: false,
 });
 
-//監聽檔案變動事件
-watcher.on('all', (event, path) => {
-    console.log(`[${event}] ${path}`);
-    // 每當有變動時，將來源資料夾同步到目標資料夾
+folderWatcher.on('all', (event, filePath) => {
+    console.log(`[${event}] ${filePath}`);
+    clearFolder(targetDir);
     copyFolderSync(sourceDir, targetDir);
-    console.log(`同步完成: ${sourceDir} -> ${targetDir}`);
+    console.log(`資料夾同步完成: ${sourceDir} -> ${targetDir}`);
 });
+
+// 初始化監視器（監視 imagesOrder.json）
+const fileWatcher = chokidar.watch(imagesOrderFile, {
+    persistent: true,
+    ignoreInitial: false,
+});
+
+fileWatcher.on('change', (filePath) => {
+    console.log(`檔案變動: ${filePath}`);
+    syncFile(imagesOrderFile, imagesOrderTarget);
+});
+
+// 初次執行時同步 imagesOrder.json
+syncFile(imagesOrderFile, imagesOrderTarget);
+
+console.log('監視器啟動中...');
 
 // 設定靜態資源
 app.use(express.static(path.join(__dirname)));
