@@ -7,10 +7,10 @@ const app = express();
 const port = 3000;
 
 const iconv = require('iconv-lite');
-// const chokidar = require('chokidar');
+const chokidar = require('chokidar');
 
 // 定義來源和目標資料夾路徑
-const sourceDir = path.join(__dirname, 'public', 'uploads');
+const sourceDir = path.join(__dirname,'uploads');
 const targetDir = path.join(__dirname, 'dist', 'uploads');
 
 // 資料夾同步函式
@@ -33,27 +33,28 @@ function copyFolderSync(src, dest) {
     });
 }
 
-// // 初始化監視器
-// const watcher = chokidar.watch(sourceDir, {
-//     persistent: true, // 保持監視器運行
-//     ignoreInitial: false, // 初始時不忽略現有檔案
-// });
+// 初始化監視器
+const watcher = chokidar.watch(sourceDir, {
+    persistent: true, // 保持監視器運行
+    ignoreInitial: false, // 初始時不忽略現有檔案
+});
 
-// 監聽檔案變動事件
-// watcher.on('all', (event, path) => {
-//     console.log(`[${event}] ${path}`);
-//     // 每當有變動時，將來源資料夾同步到目標資料夾
-//     copyFolderSync(sourceDir, targetDir);
-//     console.log(`同步完成: ${sourceDir} -> ${targetDir}`);
-// });
+//監聽檔案變動事件
+watcher.on('all', (event, path) => {
+    console.log(`[${event}] ${path}`);
+    // 每當有變動時，將來源資料夾同步到目標資料夾
+    copyFolderSync(sourceDir, targetDir);
+    console.log(`同步完成: ${sourceDir} -> ${targetDir}`);
+});
 
 // 設定靜態資源
 app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, 'dist')));
 
 
-// app.use('/public', express.static(path.join(__dirname, 'public')));
-// app.use('/src', express.static(path.join(__dirname, 'src')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use('/src', express.static(path.join(__dirname, 'src')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist/index.html'));
@@ -629,31 +630,6 @@ app.post('/api/update-group-name', async (req, res) => {
         res.status(500).json({ error: 'Failed to update group name' });
     }
 });
-
-// async function addDescriptionFieldToImagesOrder() {
-//     const imagesOrderPath = path.join(__dirname, 'imagesOrder.json');
-
-//     try {
-//         // 讀取 imagesOrder.json
-//         const data = await fs.promises.readFile(imagesOrderPath, 'utf8');
-//         const imagesOrder = JSON.parse(data);
-
-//         // 為每個 additionalImages 添加 description 欄位
-//         imagesOrder.forEach(group => {
-//             group.additionalImages.forEach(image => {
-//                 if (!image.description) {
-//                     image.description = ""; // 默認設置為空字串
-//                 }
-//             });
-//         });
-
-//         // 寫回更新後的 imagesOrder.json
-//         await fs.promises.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
-//         console.log('Description field added to additionalImages successfully.');
-//     } catch (error) {
-//         console.error('Error adding description field:', error);
-//     }
-// }
 
 // 調用函數
 // addDescriptionFieldToImagesOrder();
