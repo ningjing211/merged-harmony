@@ -14,9 +14,9 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing or invalid parameters' });
     }
 
-    // 使用 tmp 資料夾進行操作
-    const tmpDir = path.join(process.cwd(), 'tmp');
-    const imagesOrderPath = path.join(tmpDir, 'public/imagesOrder.json');
+    // 定義臨時目錄路徑
+    const tmpDir = path.join('/tmp'); // Vercel 上的寫入目錄
+    const imagesOrderPath = path.join(tmpDir, 'imagesOrder.json');
     console.log('有執行到這裡嗎？1')
 
     try {
