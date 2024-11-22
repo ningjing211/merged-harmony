@@ -1,6 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
-
+const fs = require('fs/promises');
+const path = require('path');
 export default async function handler(req, res) {
     // 確定檔案路徑
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads'); // 改用 public/uploads 作為靜態檔案目錄

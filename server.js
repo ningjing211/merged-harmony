@@ -52,9 +52,8 @@ app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, 'dist')));
 
 
-app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use('/src', express.static(path.join(__dirname, 'src')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/public', express.static(path.join(__dirname, 'public')));
+// app.use('/src', express.static(path.join(__dirname, 'src')));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist/index.html'));
@@ -363,7 +362,9 @@ app.post('/reorder-images/:folderName', (req, res) => {
 
 
 // Serve uploads 資料夾中的圖片
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
+
 
 app.post('/api/remove-image', async (req, res) => {
     const { folderName, imageName, imageIndex } = req.body;

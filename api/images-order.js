@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
-import path from 'path';
+const fs = require('fs/promises');
+const path = require('path');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   try {
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     const imagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
@@ -54,4 +54,4 @@ export default async function handler(req, res) {
     console.error('Unexpected error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
