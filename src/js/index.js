@@ -1074,8 +1074,10 @@ playerClose.addEventListener("click", () => {
         opacity: 0,
         ease: Power1.easeIn
     }) 
-    player.style.visibility = "hidden"
-
+    // 新增條件檢查，確保 style 存在再進行操作
+    if (player.style) {
+        player.style.visibility = "hidden";
+    }
     gsap.to(groupPlane.children[planeClickedIndex].position, 0.5, {
         x: lastPosition.px,
         y: lastPosition.py,
