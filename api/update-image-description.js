@@ -14,7 +14,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing or invalid parameters' });
     }
 
-    const imagesOrderPath = path.join(process.cwd(), 'imagesOrder.json');
+    const imagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
+
 
     try {
         // 1. 讀取並解析 imagesOrder.json
