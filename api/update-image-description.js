@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     // 使用 tmp 資料夾進行操作
     const tmpDir = path.join(process.cwd(), 'tmp');
-    const imagesOrderPath = path.join(tmpDir, 'imagesOrder.json');
+    const imagesOrderPath = path.join(tmpDir, 'public/imagesOrder.json');
 
     try {
         // 檢查 tmp 資料夾是否存在，若不存在則創建
