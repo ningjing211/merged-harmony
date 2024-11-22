@@ -93,7 +93,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use('/src', express.static(path.join(__dirname, 'src')));
+// app.use('/src', express.static(path.join(__dirname, 'src')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
