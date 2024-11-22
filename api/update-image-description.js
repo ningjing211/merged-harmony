@@ -14,30 +14,49 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing or invalid parameters' });
     }
 
-    const imagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
-
+    // 使用 tmp 資料夾進行操作
+    const tmpDir = path.join(process.cwd(), 'tmp');
+    const imagesOrderPath = path.join(tmpDir, 'imagesOrder.json');
 
     try {
-        // 1. 讀取並解析 imagesOrder.json
-        const data = await fs.promises.readFile(imagesOrderPath, 'utf8');
-        const imagesOrder = JSON.parse(data);
+        // 檢查 tmp 資料夾是否存在，若不存在則創建
+        if (!fs.existsSync(tmpDir)) {
+            fs.mkdirSync(tmpDir);
+        }
 
-        // 2. 找到對應的資料夾
+        // 讀取原始 imagesOrder.json
+        let imagesOrder = [];
+        if (fs.existsSync(imagesOrderPath)) {
+            const data = await fs.promises.readFile(imagesOrderPath, 'utf8');
+            imagesOrder = JSON.parse(data);
+        } else {
+            // 如果 tmp 下的 imagesOrder.json 不存在，可以考慮從 public 複製一份
+            const publicImagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
+            if (fs.existsSync(publicImagesOrderPath)) {
+                const data = await fs.promises.readFile(publicImagesOrderPath, 'utf8');
+                imagesOrder = JSON.parse(data);
+                await fs.promises.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
+            } else {
+                return res.status(404).json({ error: 'imagesOrder.json not found' });
+            }
+        }
+
+        // 找到對應的資料夾
         const group = imagesOrder.find(group => group.folderName === folderName);
         if (!group) {
             return res.status(404).json({ error: 'Folder not found in imagesOrder.json' });
         }
 
-        // 3. 找到對應的圖片
+        // 找到對應的圖片
         const image = group.additionalImages.find(img => img.name === fileName);
         if (!image) {
             return res.status(404).json({ error: 'Image not found in the specified folder' });
         }
 
-        // 4. 更新描述
+        // 更新描述
         image.imageDescription = newDescription;
 
-        // 5. 寫回更新後的 imagesOrder.json
+        // 寫回更新後的 imagesOrder.json
         await fs.promises.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
         console.log('Image description updated successfully.');
 

@@ -8,9 +8,9 @@ export default async function handler(req, res) {
 
     const { oldFolderName, newFolderName } = req.body;
 
-    const imagesOrderPath = path.join(__dirname, 'imagesOrder.json');
-    const oldFolderPath = path.join(__dirname, 'uploads', oldFolderName);
-    const newFolderPath = path.join(__dirname, 'uploads', newFolderName);
+    const imagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
+    const oldFolderPath = path.join(__dirname, 'public/uploads', oldFolderName);
+    const newFolderPath = path.join(__dirname, 'public/uploads', newFolderName);
 
     try {
         // 1. 更新 imagesOrder.json
