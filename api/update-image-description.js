@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 
         res.json({ message: 'Image description updated successfully' });
     } catch (err) {
-        console.error('Error updating image description:', err.message);
+        console.error('Error updating image description:', err.response ? err.response.data : err.message);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
