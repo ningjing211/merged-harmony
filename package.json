@@ -2,6 +2,7 @@
   "name": "turnaroundmodel",
   "version": "1.0.0",
   "description": "A 3D project using Three.js and Parcel",
+  "type": "module", 
   "scripts": {
     "start": "parcel src/index.html",
     "build": "parcel build src/index.html",
