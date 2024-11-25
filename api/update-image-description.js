@@ -1,4 +1,4 @@
-import { Octokit } from "@octokit/rest";
+const Octokit = require("@octokit/rest").Octokit;
 
 console.log("GITHUB_TOKEN:", process.env.GITHUB_TOKEN);
 
