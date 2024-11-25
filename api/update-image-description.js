@@ -1,7 +1,15 @@
-const fs = require('fs');
-const path = require('path');
+import { Octokit } from "@octokit/rest";
 
-module.exports = async function handler(req, res) {
+const octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN // 使用 GitHub Personal Access Token
+});
+
+const owner = "ningjing211"; // 你的 GitHub 用戶名
+const repo = "merged-harmony"; // 你的 GitHub 專案名稱
+const branch = "main"; // 分支名稱
+const filePath = "/public/imagesOrder.json"; // imagesOrder.json 在倉庫中的路徑
+
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed, use POST' });
     }
@@ -12,31 +20,19 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'Missing or invalid parameters' });
     }
 
-    const tmpDir = path.join('/tmp'); // Vercel 上的可寫路徑
-    const imagesOrderPath = path.join(tmpDir, 'imagesOrder.json');
-    const publicImagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
-
     try {
-        // 確保 /tmp 目錄存在
-        if (!fs.existsSync(tmpDir)) {
-            fs.mkdirSync(tmpDir);
-        }
+        // 取得現有的 imagesOrder.json
+        const { data: file } = await octokit.repos.getContent({
+            owner,
+            repo,
+            path: filePath,
+            ref: branch
+        });
 
-        let imagesOrder = [];
-        if (fs.existsSync(imagesOrderPath)) {
-            // 讀取 /tmp/imagesOrder.json
-            const data = await fs.promises.readFile(imagesOrderPath, 'utf8');
-            imagesOrder = JSON.parse(data);
-        } else if (fs.existsSync(publicImagesOrderPath)) {
-            // 如果 /tmp 不存在，從 public 複製一份
-            const data = await fs.promises.readFile(publicImagesOrderPath, 'utf8');
-            imagesOrder = JSON.parse(data);
-            await fs.promises.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
-        } else {
-            return res.status(404).json({ error: 'imagesOrder.json not found' });
-        }
+        const content = Buffer.from(file.content, 'base64').toString('utf8');
+        const imagesOrder = JSON.parse(content);
 
-        // 找到目標資料夾與圖片
+        // 更新描述
         const group = imagesOrder.find(group => group.folderName === folderName);
         if (!group) {
             return res.status(404).json({ error: 'Folder not found in imagesOrder.json' });
@@ -47,13 +43,23 @@ module.exports = async function handler(req, res) {
             return res.status(404).json({ error: 'Image not found in the specified folder' });
         }
 
-        // 更新描述並寫回
         image.imageDescription = newDescription;
-        await fs.promises.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
+
+        // 將更新後的 imagesOrder.json 上傳到 GitHub
+        const updatedContent = Buffer.from(JSON.stringify(imagesOrder, null, 2)).toString('base64');
+        await octokit.repos.createOrUpdateFileContents({
+            owner,
+            repo,
+            path: filePath,
+            message: "Update imagesOrder.json",
+            content: updatedContent,
+            sha: file.sha,
+            branch
+        });
 
         res.json({ message: 'Image description updated successfully' });
     } catch (err) {
-        console.error('Error updating image description:', err);
+        console.error('Error updating image description:', err.message);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
