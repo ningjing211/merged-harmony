@@ -2,9 +2,15 @@ const Octokit = require("@octokit/rest").Octokit;
 
 console.log("GITHUB_TOKEN:", process.env.GITHUB_TOKEN);
 
+require = require("esm")(module);
+const { Octokit } = require("@octokit/rest");
+
 const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN // 使用 GitHub Personal Access Token
+    auth: process.env.GITHUB_TOKEN
 });
+
+// 你的程式碼
+
 
 const owner = "ningjing211"; // 你的 GitHub 用戶名
 const repo = "merged-harmony"; // 你的 GitHub 專案名稱
