@@ -1,5 +1,7 @@
 import { Octokit } from "@octokit/rest";
 
+console.log("GITHUB_TOKEN:", process.env.GITHUB_TOKEN);
+
 const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN // 使用 GitHub Personal Access Token
 });
@@ -8,6 +10,21 @@ const owner = "ningjing211"; // 你的 GitHub 用戶名
 const repo = "merged-harmony"; // 你的 GitHub 專案名稱
 const branch = "main"; // 分支名稱
 const filePath = "/public/imagesOrder.json"; // imagesOrder.json 在倉庫中的路徑
+
+
+async function testAuth() {
+    try {
+        const { data } = await octokit.repos.get({
+            owner: "你的 GitHub 用戶名",
+            repo: "你的儲存庫名稱"
+        });
+        console.log("儲存庫資訊:", data);
+    } catch (err) {
+        console.error("驗證失敗:", err.message);
+    }
+}
+
+testAuth();
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
