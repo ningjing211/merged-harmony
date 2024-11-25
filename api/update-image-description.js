@@ -1,8 +1,11 @@
-import { Octokit } from "@octokit/rest";
+(async () => {
+    const { Octokit } = await import("@octokit/rest");
+    const octokit = new Octokit({
+        auth: process.env.GITHUB_TOKEN // 使用 GitHub Personal Access Token
+    });
+    // 其餘邏輯不變
+})();
 
-const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN // 使用 GitHub Personal Access Token
-});
 
 const owner = "ningjing211"; // 你的 GitHub 用戶名
 const repo = "merged-harmony"; // 你的 GitHub 專案名稱
