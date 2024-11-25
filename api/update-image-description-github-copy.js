@@ -1,15 +1,10 @@
 const admin = require('firebase-admin');
-const dotenv = require('dotenv');
-
-// 加載 .env 檔案中的環境變數
-dotenv.config();
 
 // 初始化 Firebase Admin SDK
 if (!admin.apps.length) {
-    const firebaseKey = Buffer.from(process.env.FIREBASE_KEY_BASE64, 'base64').toString('utf8');
     admin.initializeApp({
-        credential: admin.credential.cert(JSON.parse(firebaseKey)),
-        databaseURL: process.env.FIREBASE_DATABASE_URL
+        credential: admin.credential.cert(require('./firebase-key.json')), // 替換為你的 Firebase 密鑰檔案路徑
+        databaseURL: 'https://merged-harmony-default-rtdb.asia-southeast1.firebasedatabase.app' // 替換為你的 Firebase Realtime Database URL
     });
 }
 
