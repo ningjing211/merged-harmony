@@ -9,7 +9,7 @@ const octokit = new Octokit({
 const owner = "ningjing211"; // 你的 GitHub 用戶名
 const repo = "merged-harmony"; // 你的 GitHub 專案名稱
 const branch = "main"; // 分支名稱
-const filePath = "/public/imagesOrder.json"; // imagesOrder.json 在倉庫中的路徑
+const filePath = "public/imagesOrder.json"; // imagesOrder.json 在倉庫中的路徑
 
 console.log("GITHUB_TOKEN:", process.env.GITHUB_TOKEN);
 
