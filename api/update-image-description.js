@@ -28,13 +28,15 @@ testAuth();
 
 (async () => {
     try {
-        const { data: file } = await octokit.repos.getContent({
+        const startTime = Date.now();
+        const response = await octokit.repos.getContent({
             owner: "ningjing211",
             repo: "merged-harmony",
             path: "public/imagesOrder.json",
             ref: "main",
         });
-
+        const endTime = Date.now();
+        console.log("API 耗時:", endTime - startTime, "ms");
         console.log("檔案資訊:", file);
     } catch (err) {
         console.error("API 請求失敗:", err.response ? err.response.data : err.message);
@@ -91,7 +93,7 @@ export default async function handler(req, res) {
             branch
         });
 
-        res.json({ message: 'Image description updated successfully' });
+        res.json({ message: 'Image description updated successfully', updatedContent: imagesOrder });
     } catch (err) {
         console.error('Error updating image description:', err.response ? err.response.data : err.message);
         res.status(500).json({ error: 'Internal server error' });
