@@ -26,21 +26,20 @@ async function testAuth() {
 
 testAuth();
 
-try {
-    const { data: file } = await octokit.repos.getContent({
-        owner: "ningjing211",
-        repo: "merged-harmony",
-        path: "public/imagesOrder.json",
-        ref: "main",
-    });
-    console.log("檔案資訊:", file);
+(async () => {
+    try {
+        const { data: file } = await octokit.repos.getContent({
+            owner: "ningjing211",
+            repo: "merged-harmony",
+            path: "public/imagesOrder.json",
+            ref: "main",
+        });
 
-    const content = Buffer.from(file.content, "base64").toString("utf8");
-    console.log("解析後的檔案內容:", content);
-} catch (err) {
-    console.error("API 請求失敗:", err.response ? err.response.data : err.message);
-}
-
+        console.log("檔案資訊:", file);
+    } catch (err) {
+        console.error("API 請求失敗:", err.response ? err.response.data : err.message);
+    }
+})();
 console.log("GITHUB_TOKEN:", process.env.GITHUB_TOKEN);
 
 
