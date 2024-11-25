@@ -681,10 +681,7 @@ $(document).ready(function () {
             success: function () {
                 alert('圖片描述更新成功');
                 // 可選：重新載入圖片畫廊，讓畫面即時更新
-                if (data.updatedContent) {
-                    console.log("更新的內容：", data.updatedContent);
-                    loadGallery(); // 重新加載數據（假設有此函數）
-                }
+                loadGallery();
             },
             error: function (err) {
                 console.error('更新圖片描述失敗:', err);
