@@ -1,6 +1,14 @@
-import fs from 'fs/promises';
-import path from 'path';
-import multer from 'multer';
+const fs = require('fs/promises');
+const path = require('path');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const config = {
   api: {
@@ -8,16 +16,11 @@ export const config = {
   },
 };
 
-// 使用 multer 來處理文件上傳
-const storage = multer.diskStorage({
-  destination: '/tmp', // 將文件存儲到 /tmp
-  filename: (req, file, cb) => {
-    cb(null, `${req.query.folderName}.jpg`);
-  },
-});
+// 使用 multer 處理文件上傳到內存中
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed, use POST' });
   }
@@ -30,7 +33,7 @@ export default async function handler(req, res) {
     const data = await fs.readFile(imagesOrderPath, 'utf8');
     const imagesOrder = JSON.parse(data);
 
-    const group = imagesOrder.find(g => g.folderName === folderName);
+    const group = imagesOrder.find((g) => g.folderName === folderName);
     if (!group) {
       return res.status(404).json({ error: `Folder not found: ${folderName}` });
     }
@@ -42,23 +45,40 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'File upload failed' });
       }
 
-      const tempFilePath = path.join('/tmp', `${folderName}.jpg`);
-      const finalCoverPath = path.join(process.cwd(), 'public', 'uploads', folderName, `${folderName}.jpg`);
-
       try {
-        // 移動文件到目標目錄
-        await fs.mkdir(path.dirname(finalCoverPath), { recursive: true });
-        await fs.rename(tempFilePath, finalCoverPath);
+        // 將封面圖上傳至 Cloudinary
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: `uploads/${folderName}`, // Cloudinary 資料夾
+            public_id: `${folderName}.jpg`, // 使用資料夾名稱作為封面 public_id
+            overwrite: true, // 覆蓋舊的封面
+          },
+          async (error, result) => {
+            if (error) {
+              console.error('Cloudinary upload failed:', error);
+              return res.status(500).json({ error: 'Failed to upload to Cloudinary' });
+            }
 
-        console.log(`Cover image uploaded for ${folderName}: ${finalCoverPath}`);
-        res.json({ message: 'Cover image uploaded successfully' });
-      } catch (fileError) {
-        console.error('Failed to set cover image:', fileError);
-        res.status(500).json({ error: 'Failed to set cover image' });
+            console.log(`封面圖已更新: ${result.secure_url}`);
+
+            // 更新 imagesOrder.json 文件中的封面 URL
+            group.coverUrl = result.secure_url;
+            await fs.writeFile(imagesOrderPath, JSON.stringify(imagesOrder, null, 2), 'utf8');
+
+            res.json({ message: 'Cover image uploaded successfully', coverUrl: result.secure_url });
+          }
+        );
+
+        // 將檔案 buffer 傳遞給 Cloudinary
+        streamifier = require('streamifier');
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      } catch (uploadError) {
+        console.error('Failed to process file upload:', uploadError);
+        res.status(500).json({ error: 'Failed to process file upload' });
       }
     });
   } catch (readError) {
     console.error('Failed to read imagesOrder.json:', readError);
     res.status(500).json({ error: 'Failed to read imagesOrder.json' });
   }
-}
+};
