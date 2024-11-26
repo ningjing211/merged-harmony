@@ -25,7 +25,8 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed, use POST' });
   }
 
-  const folderName = req.query.folderName;
+  // 解碼 folderName
+  const folderName = decodeURIComponent(req.query.folderName);
   const imagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
 
   try {
@@ -43,6 +44,10 @@ module.exports = async function handler(req, res) {
       if (err) {
         console.error('File upload failed:', err);
         return res.status(500).json({ error: 'File upload failed' });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
       }
 
       try {
@@ -70,7 +75,7 @@ module.exports = async function handler(req, res) {
         );
 
         // 將檔案 buffer 傳遞給 Cloudinary
-        streamifier = require('streamifier');
+        const streamifier = require('streamifier');
         streamifier.createReadStream(req.file.buffer).pipe(stream);
       } catch (uploadError) {
         console.error('Failed to process file upload:', uploadError);
