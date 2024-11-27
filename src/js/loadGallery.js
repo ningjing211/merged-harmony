@@ -11,6 +11,7 @@ $(document).ready(function () {
                 displayGallery(data);
             },
             error: function () {
+                console.error('Error loading gallery:', jqXHR.responseText || jqXHR.statusText);
                 alert('Error loading gallery');
             }
         });
@@ -65,7 +66,7 @@ $(document).ready(function () {
         const galleryData = collectGalleryData(); // 使用 collectGalleryData 函數獲取資料
     
         $.ajax({
-            url: '/api/update-images-order',
+            url: '/api/',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(galleryData),
@@ -104,7 +105,7 @@ $(document).ready(function () {
                             $groupNameInput.hide();
                         });
                 
-                        const coverImage = group.files.find(file => file.isTitle);
+                        const coverImage = ture;
                         if (coverImage) {
                             const $coverImageContainer = $('<div>').addClass('coverImageContainer').css({ display: 'flex', alignItems: 'baseline' });
                 
@@ -411,7 +412,7 @@ $(document).ready(function () {
                 $groupNameInput.hide();
             });
     
-            const coverImage = group.files.find(file => file.isTitle);
+            const coverImage = ture;
             if (coverImage) {
                 const $coverImageContainer = $('<div>').addClass('coverImageContainer').css({ display: 'flex', alignItems: 'center' });
     
