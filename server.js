@@ -723,8 +723,8 @@ app.post('/api/update-group-name', async (req, res) => {
       const imagesOrderResource = await cloudinary.api.resource('uploads/imagesOrder.json', {
         resource_type: 'raw',
       });
-      const imagesOrderContent = imagesOrderResource.bytes;
-      const imagesOrder = JSON.parse(imagesOrderContent);
+      const response = await fetch(imagesOrderResource.secure_url);
+      const imagesOrder = await response.json();
   
       // Step 2: Find and update the group
       const group = imagesOrder.find(g => g.folderName === oldFolderName);
@@ -741,7 +741,6 @@ app.post('/api/update-group-name', async (req, res) => {
       group.title = newFolderName;
       group.path = group.path.replace(oldFolderName, newFolderName);
       group.additionalImages.forEach(image => {
-        image.name = image.name.replace(oldFolderName, newFolderName);
         image.path = image.path.replace(`/uploads/${oldFolderName}/`, `/uploads/${newFolderName}/`);
       });
   
@@ -758,9 +757,7 @@ app.post('/api/update-group-name', async (req, res) => {
         const oldPublicId = file.public_id;
         const newPublicId = oldPublicId.replace(`${oldFolderName}/`, `${newFolderName}/`);
   
-        await cloudinary.uploader.rename(oldPublicId, newPublicId, {
-          overwrite: true,
-        });
+        await cloudinary.uploader.rename(oldPublicId, newPublicId);
   
         console.log(`Renamed: ${oldPublicId} -> ${newPublicId}`);
       }
