@@ -29,77 +29,77 @@ const targetDir = path.join(__dirname, 'public', 'uploads');
 const imagesOrderFile = path.join(__dirname, 'imagesOrder.json');
 const imagesOrderTarget = path.join(__dirname, 'public', 'imagesOrder.json');
 
-// 資料夾同步函式
-function copyFolderSync(src, dest) {
-    if (!fs.existsSync(dest)) {
-        fs.mkdirSync(dest, { recursive: true });
-    }
+// // 資料夾同步函式
+// function copyFolderSync(src, dest) {
+//     if (!fs.existsSync(dest)) {
+//         fs.mkdirSync(dest, { recursive: true });
+//     }
 
-    const entries = fs.readdirSync(src, { withFileTypes: true });
+//     const entries = fs.readdirSync(src, { withFileTypes: true });
 
-    entries.forEach(entry => {
-        const srcPath = path.join(src, entry.name);
-        const destPath = path.join(dest, entry.name);
+//     entries.forEach(entry => {
+//         const srcPath = path.join(src, entry.name);
+//         const destPath = path.join(dest, entry.name);
 
-        if (entry.isDirectory()) {
-            copyFolderSync(srcPath, destPath); // 遞迴處理子資料夾
-        } else {
-            fs.copyFileSync(srcPath, destPath); // 複製檔案
-        }
-    });
-}
+//         if (entry.isDirectory()) {
+//             copyFolderSync(srcPath, destPath); // 遞迴處理子資料夾
+//         } else {
+//             fs.copyFileSync(srcPath, destPath); // 複製檔案
+//         }
+//     });
+// }
 
-// 清空目標資料夾
-function clearFolder(dest) {
-    if (fs.existsSync(dest)) {
-        fs.readdirSync(dest).forEach(file => {
-            const currentPath = path.join(dest, file);
-            if (fs.lstatSync(currentPath).isDirectory()) {
-                clearFolder(currentPath); // 遞迴刪除子資料夾
-            } else {
-                fs.unlinkSync(currentPath); // 刪除檔案
-            }
-        });
-        fs.rmdirSync(dest); // 刪除目標資料夾
-    }
-}
+// // 清空目標資料夾
+// function clearFolder(dest) {
+//     if (fs.existsSync(dest)) {
+//         fs.readdirSync(dest).forEach(file => {
+//             const currentPath = path.join(dest, file);
+//             if (fs.lstatSync(currentPath).isDirectory()) {
+//                 clearFolder(currentPath); // 遞迴刪除子資料夾
+//             } else {
+//                 fs.unlinkSync(currentPath); // 刪除檔案
+//             }
+//         });
+//         fs.rmdirSync(dest); // 刪除目標資料夾
+//     }
+// }
 
-// 同步單一檔案
-function syncFile(src, dest) {
-    if (fs.existsSync(src)) {
-        fs.copyFileSync(src, dest);
-        console.log(`檔案同步成功: ${src} -> ${dest}`);
-    }
-}
+// // 同步單一檔案
+// function syncFile(src, dest) {
+//     if (fs.existsSync(src)) {
+//         fs.copyFileSync(src, dest);
+//         console.log(`檔案同步成功: ${src} -> ${dest}`);
+//     }
+// }
 
-// 初始化監視器（監視資料夾變動）
-const folderWatcher = chokidar.watch(sourceDir, {
-    persistent: true,
-    ignoreInitial: false,
-});
+// // 初始化監視器（監視資料夾變動）
+// const folderWatcher = chokidar.watch(sourceDir, {
+//     persistent: true,
+//     ignoreInitial: false,
+// });
 
-folderWatcher.on('all', (event, filePath) => {
-    console.log(`[${event}] ${filePath}`);
-    clearFolder(targetDir);
-    copyFolderSync(sourceDir, targetDir);
-    console.log(`資料夾同步完成: ${sourceDir} -> ${targetDir}`);
-});
+// folderWatcher.on('all', (event, filePath) => {
+//     console.log(`[${event}] ${filePath}`);
+//     clearFolder(targetDir);
+//     copyFolderSync(sourceDir, targetDir);
+//     console.log(`資料夾同步完成: ${sourceDir} -> ${targetDir}`);
+// });
 
-// 初始化監視器（監視 imagesOrder.json）
-const fileWatcher = chokidar.watch(imagesOrderFile, {
-    persistent: true,
-    ignoreInitial: false,
-});
+// // 初始化監視器（監視 imagesOrder.json）
+// const fileWatcher = chokidar.watch(imagesOrderFile, {
+//     persistent: true,
+//     ignoreInitial: false,
+// });
 
-fileWatcher.on('change', (filePath) => {
-    console.log(`檔案變動: ${filePath}`);
-    syncFile(imagesOrderFile, imagesOrderTarget);
-});
+// fileWatcher.on('change', (filePath) => {
+//     console.log(`檔案變動: ${filePath}`);
+//     syncFile(imagesOrderFile, imagesOrderTarget);
+// });
 
-// 初次執行時同步 imagesOrder.json
-syncFile(imagesOrderFile, imagesOrderTarget);
+// // 初次執行時同步 imagesOrder.json
+// syncFile(imagesOrderFile, imagesOrderTarget);
 
-console.log('監視器啟動中...');
+// console.log('監視器啟動中...');
 
 // 設定靜態資源
 app.use(express.static(path.join(__dirname)));
@@ -261,9 +261,12 @@ app.get('/api/images-order', async (req, res) => {
         // 遍歷每個 group
         for (const group of imagesOrder) {
             const folderName = group.folderName;
+            const groupFolder = `Group - ${group.index}`; // 對應新的 Group 資料夾名稱
+            const folderPath = `uploads/${groupFolder}`; // 新的資料夾路徑
+            console.log('folderPath', folderPath);
             // 查詢該資料夾的所有圖片
             const folderResources = await cloudinary.search
-                .expression(`folder:"uploads/${folderName}" AND resource_type:image`)
+                .expression(`folder:"uploads/Group - ${group.index}" AND resource_type:image`)
                 .sort_by('public_id', 'asc')
                 .max_results(500)
                 .execute();
@@ -271,8 +274,21 @@ app.get('/api/images-order', async (req, res) => {
 
             console.log(`Files in folder ${folderName}:`, files);
 
-            // 更新封面圖片 path ； 11-27-2024 。但是這裡的path也要一起改
-            const titleImage = files.find(file => file.public_id === `uploads/${folderName}/${folderName}.jpg`);
+            console.log('`${folderPath}/cover-image`');
+            console.log(`${folderPath}/cover-image`);
+            
+            // 更新封面圖片 path
+            let titleImage = null; // 預設為 null
+            for (const file of files) {
+                console.log('Checking file public_id:', file.public_id); // 印出每個 public_id
+                if (file.public_id === `${folderPath}/cover-image.jpg`) {
+                    titleImage = file; // 找到匹配的檔案
+                    break; // 結束迴圈
+                }
+            }
+            
+            console.log('titleImage', titleImage);
+            
             if (titleImage) {
                 group.path = titleImage.secure_url;
             }
@@ -286,7 +302,7 @@ app.get('/api/images-order', async (req, res) => {
             // 更新 additionalImages 的 path
             for (const image of group.additionalImages) {
                 console.log("Original image.path:", image.path);
-                const matchingFile = files.find(file => file.public_id === `uploads/${folderName}/${image.name}`);
+                const matchingFile = files.find(file => file.public_id === `${folderPath}/${image.name}`);
                 if (matchingFile) {
                     console.log("Found matching file:", matchingFile.secure_url);
                     image.path = matchingFile.secure_url;
@@ -691,7 +707,6 @@ app.post('/api/create-folder', (req, res) => {
 });
 
 // 複製圖片 API
-// 複製圖片 API
 app.post('/api/copy-image', async (req, res) => {
     try {
         const { folderName, newFileName } = req.body; // 確認接收到 folderName 和 newFileName
@@ -717,77 +732,75 @@ app.post('/api/copy-image', async (req, res) => {
 
 app.post('/api/update-group-name', async (req, res) => {
     const { oldFolderName, newFolderName } = req.body;
-  
+
     try {
-      // Step 1: Fetch imagesOrder.json from Cloudinary
-      const imagesOrderResource = await cloudinary.api.resource('uploads/imagesOrder.json', {
-        resource_type: 'raw',
-      });
-      const response = await fetch(imagesOrderResource.secure_url);
-      const imagesOrder = await response.json();
-  
-      // Step 2: Find and update the group
-      const group = imagesOrder.find(g => g.folderName === oldFolderName);
-      if (!group) {
-        return res.status(404).json({ error: 'Folder not found in imagesOrder.json' });
-      }
-  
-      const isNameUsed = imagesOrder.some(g => g.folderName === newFolderName);
-      if (isNameUsed) {
-        return res.status(400).json({ error: '此名稱已被使用，請使用別的。' });
-      }
-  
-      group.folderName = newFolderName;
-      group.title = newFolderName;
-      group.path = group.path.replace(oldFolderName, newFolderName);
-      group.additionalImages.forEach(image => {
-        image.path = image.path.replace(`/uploads/${oldFolderName}/`, `/uploads/${newFolderName}/`);
-      });
-  
-      // Step 3: Fetch all files in the old folder
-      const resources = await cloudinary.api.resources({
-        type: 'upload',
-        prefix: `uploads/${oldFolderName}/`,
-      });
-  
-      const files = resources.resources;
-  
-      // Step 4: Re-upload files to the new folder
-      for (const file of files) {
-        const oldPublicId = file.public_id;
-        const newPublicId = oldPublicId.replace(`${oldFolderName}/`, `${newFolderName}/`);
-  
-        await cloudinary.uploader.rename(oldPublicId, newPublicId);
-  
-        console.log(`Renamed: ${oldPublicId} -> ${newPublicId}`);
-      }
-  
-      // Step 5: Delete old folder
-      console.log(`Deleting old folder: uploads/${oldFolderName}`);
-      try {
-        await cloudinary.api.delete_resources_by_prefix(`uploads/${oldFolderName}`);
-        console.log(`Old folder uploads/${oldFolderName} deleted successfully.`);
-      } catch (deleteError) {
-        console.error(`Error deleting old folder:`, deleteError);
-      }
-  
-      // Step 6: Upload updated imagesOrder.json to Cloudinary
-      const updatedImagesOrderContent = JSON.stringify(imagesOrder, null, 2);
-      await cloudinary.uploader.upload(
-        `data:application/json;base64,${Buffer.from(updatedImagesOrderContent).toString('base64')}`,
-        {
-          public_id: 'uploads/imagesOrder',
-          resource_type: 'raw',
-          overwrite: true,
+        // Step 1: Fetch imagesOrder.json from Cloudinary
+        const imagesOrderResource = await cloudinary.api.resource('uploads/imagesOrder.json', {
+            resource_type: 'raw',
+        });
+        const response = await fetch(imagesOrderResource.secure_url);
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json from Cloudinary');
+        const imagesOrder = await response.json();
+
+        // Step 2: Find and update the group
+        const group = imagesOrder.find((g) => g.folderName === oldFolderName);
+        if (!group) return res.status(404).json({ error: 'Folder not found in imagesOrder.json' });
+
+        const isNameUsed = imagesOrder.some((g) => g.folderName === newFolderName);
+        if (isNameUsed) return res.status(400).json({ error: '此名稱已被使用，請使用別的。' });
+
+        group.folderName = newFolderName;
+        group.title = newFolderName;
+        group.path = group.path.replace(oldFolderName, newFolderName);
+        group.additionalImages.forEach((image) => {
+            image.path = image.path.replace(`/uploads/${oldFolderName}/`, `/uploads/${newFolderName}/`);
+        });
+
+        // Step 3: Fetch all files in the old folder
+        const { resources } = await cloudinary.api.resources({
+            type: 'upload',
+            prefix: `uploads/${oldFolderName}/`,
+        });
+
+        // Step 4: Re-upload files to the new folder
+        for (const file of resources) {
+            const oldPublicId = file.public_id;
+
+            console.log('oldPublicId', oldPublicId);
+
+            // 將所有的 oldFolderName 替換為 newFolderName，確保替換所有出現的地方
+            const newPublicId = oldPublicId.split(`${oldFolderName}`).join(`${newFolderName}`);
+            console.log('newPublicId:', newPublicId);
+
+            await cloudinary.uploader.rename(oldPublicId, newPublicId, {
+                overwrite: true,
+            });
+            console.log(`Renamed: ${oldPublicId} -> ${newPublicId}`);
         }
-      );
-  
-      res.json({ message: 'Group name updated successfully.' });
+
+        // Step 5: Delete old folder
+        // console.log(`Deleting old folder: uploads/${oldFolderName}`);
+        // await cloudinary.api.delete_resources_by_prefix(`uploads/${oldFolderName}`);
+        // console.log(`Old folder uploads/${oldFolderName} deleted successfully.`);
+
+        // Step 6: Upload updated imagesOrder.json to Cloudinary
+        const updatedImagesOrderContent = JSON.stringify(imagesOrder, null, 2);
+        await cloudinary.uploader.upload(
+            `data:application/json;base64,${Buffer.from(updatedImagesOrderContent).toString('base64')}`,
+            {
+                public_id: 'uploads/imagesOrder',
+                resource_type: 'raw',
+                overwrite: true,
+            }
+        );
+
+        res.json({ message: 'Group name updated successfully.' });
     } catch (error) {
-      console.error('Error updating group name:', error);
-      res.status(500).json({ error: 'Failed to update group name' });
+        console.error('Error updating group name:', error);
+        res.status(500).json({ error: 'Failed to update group name' });
     }
-  });
+});
+
 
 
 

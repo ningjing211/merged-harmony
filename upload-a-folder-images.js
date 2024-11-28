@@ -28,7 +28,8 @@ async function uploadImageToAFolder(localFolderName, CloudinaryFolderName) {
       
       // 上傳封面圖片(not working)
 
-      const coverImagePath = group.path;
+      const coverImagePath = group.path.split('?')[0];;
+      console.log('coverImagePath', coverImagePath);
       const localCoverImagePath = path.join(__dirname, coverImagePath);
 
       if (fs.existsSync(localCoverImagePath)) {
@@ -36,7 +37,7 @@ async function uploadImageToAFolder(localFolderName, CloudinaryFolderName) {
 
       const coverUploadResponse = await cloudinary.uploader.upload(localCoverImagePath, {
           folder: `uploads/${CloudinaryFolderName}`,
-          public_id: `${CloudinaryFolderName}`,
+          public_id: `${CloudinaryFolderName}.jpg`,
       });
 
       console.log(`Cover image uploaded: ${coverUploadResponse.public_id}`);
@@ -74,7 +75,7 @@ async function uploadImageToAFolder(localFolderName, CloudinaryFolderName) {
         // 上傳圖片到 Cloudinary
         const uploadResponse = await cloudinary.uploader.upload(localImagePath, {
           folder: `uploads/${CloudinaryFolderName}`,
-          public_id: imageNumber,
+          public_id: newPublicId,
         });
   
         console.log(`Uploaded: ${uploadResponse.public_id}`);
@@ -87,4 +88,4 @@ async function uploadImageToAFolder(localFolderName, CloudinaryFolderName) {
   }
   
   // 測試函式
-  uploadImageToAFolder('Nature Loves You Back', 'Nature Loves You Back');
+  uploadImageToAFolder('Nature Loves You Back', 'Dance');

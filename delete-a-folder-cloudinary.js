@@ -9,39 +9,41 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
-  const restoreAndDeleteFolder = async (oldFolderName, currentFolderName) => {
+  const deleteFolderAndContents = async (folderName) => {
     try {
-      // 列出 Wonderful 資料夾內的資源
-      console.log(`Fetching assets in the folder: ${currentFolderName}`);
-      const assets = await cloudinary.api.resources({
+      console.log(`Fetching resources in the folder: ${folderName}`);
+      
+      // 列出資料夾內的所有檔案
+      const { resources } = await cloudinary.api.resources({
         type: 'upload',
-        prefix: currentFolderName,
+        prefix: folderName,
+        max_results: 500, // 設置最大值，確保能取得所有檔案
       });
   
-      if (assets.resources.length === 0) {
-        console.log(`No resources found in the folder: ${currentFolderName}`);
-      } else {
-        // 將 Public ID 改回 Nature Loves You Back
-        console.log(`Renaming assets to ${oldFolderName}`);
-        for (const asset of assets.resources) {
-          const newPublicId = asset.public_id.replace(currentFolderName, oldFolderName);
-          await cloudinary.uploader.rename(asset.public_id, newPublicId);
-          console.log(`Renamed ${asset.public_id} to ${newPublicId}`);
-        }
-  
-        // 刪除 Nature Loves You Back 資料夾下的所有資源
-        console.log(`Deleting resources in the folder: ${oldFolderName}`);
-        await cloudinary.api.delete_resources_by_prefix(oldFolderName);
-  
-        // 刪除資料夾
-        console.log(`Deleting the folder: ${oldFolderName}`);
-        await cloudinary.api.delete_folder(oldFolderName);
-        console.log(`Folder ${oldFolderName} deleted successfully.`);
+      // 刪除所有檔案
+      if (resources.length > 0) {
+        const publicIds = resources.map((resource) => resource.public_id);
+        console.log(`Deleting resources: ${publicIds}`);
+        await cloudinary.api.delete_resources(publicIds);
       }
+  
+      // 列出所有子資料夾
+      const { folders } = await cloudinary.api.sub_folders(folderName);
+      if (folders && folders.length > 0) {
+        for (const subFolder of folders) {
+          console.log(`Recursively deleting sub-folder: ${subFolder.path}`);
+          await deleteFolderAndContents(subFolder.path); // 遞迴刪除子資料夾
+        }
+      }
+  
+      // 刪除資料夾本身
+      console.log(`Deleting the folder: ${folderName}`);
+      await cloudinary.api.delete_folder(folderName);
+      console.log(`Folder ${folderName} deleted successfully.`);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error while deleting folder:', error);
     }
   };
   
   // 測試函式
-  restoreAndDeleteFolder('uploads/Nature Loves You Back', 'uploads/Wonderful');
+  deleteFolderAndContents('Group-1');
