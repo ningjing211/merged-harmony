@@ -23,7 +23,7 @@ cloudinary.config({
 
       const result = await cloudinary.uploader.upload(filePath, {
         folder: folderPath,
-        public_id: `${publicId}.jpg`,
+        public_id: publicId
       });
       console.log(`Uploaded: ${result.secure_url}`);
     } catch (error) {

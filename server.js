@@ -281,7 +281,7 @@ app.get('/api/images-order', async (req, res) => {
             let titleImage = null; // 預設為 null
             for (const file of files) {
                 console.log('Checking file public_id:', file.public_id); // 印出每個 public_id
-                if (file.public_id === `${folderPath}/cover-image.jpg`) {
+                if (file.public_id === `${folderPath}/cover-image`) {
                     titleImage = file; // 找到匹配的檔案
                     break; // 結束迴圈
                 }
@@ -302,7 +302,10 @@ app.get('/api/images-order', async (req, res) => {
             // 更新 additionalImages 的 path
             for (const image of group.additionalImages) {
                 console.log("Original image.path:", image.path);
-                const matchingFile = files.find(file => file.public_id === `${folderPath}/${image.name}`);
+                console.log('image.name', image.name);
+                const imageNameWithoutExtension = image.name.replace('.jpg', ''); // 移除 .jpg
+                console.log('imageNameWithoutExtension', imageNameWithoutExtension);
+                const matchingFile = files.find(file => file.public_id === `${folderPath}/${imageNameWithoutExtension}`);
                 if (matchingFile) {
                     console.log("Found matching file:", matchingFile.secure_url);
                     image.path = matchingFile.secure_url;
@@ -313,7 +316,7 @@ app.get('/api/images-order', async (req, res) => {
         }
 
         // 打印更新後的 imagesOrder
-        console.log('Updated imagesOrder:', JSON.stringify(imagesOrder, null, 2));
+        console.log('1111Updated imagesOrder:', JSON.stringify(imagesOrder, null, 2));
 
         // 返回更新後的數據
         res.json(imagesOrder);
@@ -750,45 +753,23 @@ app.post('/api/update-group-name', async (req, res) => {
         if (isNameUsed) return res.status(400).json({ error: '此名稱已被使用，請使用別的。' });
 
         group.folderName = newFolderName;
+        console.log('group.folderName', group.folderName, 'newFolderName', newFolderName);
         group.title = newFolderName;
         group.path = group.path.replace(oldFolderName, newFolderName);
+        group.path = group.path.split(`${oldFolderName}`).join(`${newFolderName}`);
+        console.log('group.path', group.path);
         group.additionalImages.forEach((image) => {
             image.path = image.path.replace(`/uploads/${oldFolderName}/`, `/uploads/${newFolderName}/`);
         });
 
-        // Step 3: Fetch all files in the old folder
-        const { resources } = await cloudinary.api.resources({
-            type: 'upload',
-            prefix: `uploads/${oldFolderName}/`,
-        });
-
-        // Step 4: Re-upload files to the new folder
-        for (const file of resources) {
-            const oldPublicId = file.public_id;
-
-            console.log('oldPublicId', oldPublicId);
-
-            // 將所有的 oldFolderName 替換為 newFolderName，確保替換所有出現的地方
-            const newPublicId = oldPublicId.split(`${oldFolderName}`).join(`${newFolderName}`);
-            console.log('newPublicId:', newPublicId);
-
-            await cloudinary.uploader.rename(oldPublicId, newPublicId, {
-                overwrite: true,
-            });
-            console.log(`Renamed: ${oldPublicId} -> ${newPublicId}`);
-        }
-
-        // Step 5: Delete old folder
-        // console.log(`Deleting old folder: uploads/${oldFolderName}`);
-        // await cloudinary.api.delete_resources_by_prefix(`uploads/${oldFolderName}`);
-        // console.log(`Old folder uploads/${oldFolderName} deleted successfully.`);
 
         // Step 6: Upload updated imagesOrder.json to Cloudinary
         const updatedImagesOrderContent = JSON.stringify(imagesOrder, null, 2);
+        console.log('---', JSON.stringify(imagesOrder, null, 2), '---');
         await cloudinary.uploader.upload(
             `data:application/json;base64,${Buffer.from(updatedImagesOrderContent).toString('base64')}`,
             {
-                public_id: 'uploads/imagesOrder',
+                public_id: 'uploads/imagesOrder.json',
                 resource_type: 'raw',
                 overwrite: true,
             }
