@@ -11,7 +11,6 @@ $(document).ready(function () {
                 displayGallery(data);
             },
             error: function () {
-                console.error('Error loading gallery:', jqXHR.responseText || jqXHR.statusText);
                 alert('Error loading gallery');
             }
         });
@@ -66,7 +65,7 @@ $(document).ready(function () {
         const galleryData = collectGalleryData(); // 使用 collectGalleryData 函數獲取資料
     
         $.ajax({
-            url: '/api/',
+            url: '/api/update-images-order',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(galleryData),
@@ -130,7 +129,7 @@ $(document).ready(function () {
                                 if (file) {
                                     const fileExtension = file.name.split('.').pop().toLowerCase();
                                     if (fileExtension === 'jpg') {
-                                        uploadCoverImage(group.folderName, file, group.index);
+                                        uploadCoverImage(group.folderName, file);
                                     } else {
                                         alert('請上傳.jpg檔案');
                                     }
@@ -437,7 +436,7 @@ $(document).ready(function () {
                     if (file) {
                         const fileExtension = file.name.split('.').pop().toLowerCase();
                         if (fileExtension === 'jpg') {
-                            uploadCoverImage(group.folderName, file, group.index);
+                            uploadCoverImage(group.folderName, file);
                         } else {
                             alert('請上傳.jpg檔案');
                         }
@@ -958,19 +957,18 @@ $(document).ready(function () {
     }
     
 
-    function uploadCoverImage(folderName, file, folderIndex) {
-        console.log('index-222', folderIndex);
+    function uploadCoverImage(folderName, file) {
         const formData = new FormData();
         formData.append('coverImage', file);
 
         $.ajax({
-            url: `/api/upload-cover/${folderIndex}`,
+            url: `/api/upload-cover/${folderName}`,
             method: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             success: function () {
-                console.log('111Cover image uploaded successfully');
+                console.log('Cover image uploaded successfully');
                 alert('Cover image uploaded successfully');
                 loadGallery(); // Reload gallery to see the new cover image
             },
@@ -999,7 +997,27 @@ $(document).ready(function () {
         });
     }
 
-
+    function uploadCoverImage(folderName, file) {
+        const formData = new FormData();
+        formData.append('coverImage', file);
+    
+        $.ajax({
+            url: `/api/upload-cover/${folderName}`,
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function () {
+                console.log('Cover image uploaded successfully');
+                alert('Cover image uploaded successfully');
+                loadGallery(); // Reload gallery to see the new cover image
+            },
+            error: function (err) {
+                console.error('Failed to upload cover image:', err);
+                alert('Failed to upload cover image');
+            }
+        });
+    }
     
 
     loadGallery();

@@ -105,7 +105,7 @@ $(document).ready(function () {
                             $groupNameInput.hide();
                         });
                 
-                        const coverImage = ture;
+                        const coverImage = group.files.find(file => file.isTitle);
                         if (coverImage) {
                             const $coverImageContainer = $('<div>').addClass('coverImageContainer').css({ display: 'flex', alignItems: 'baseline' });
                 
@@ -130,7 +130,7 @@ $(document).ready(function () {
                                 if (file) {
                                     const fileExtension = file.name.split('.').pop().toLowerCase();
                                     if (fileExtension === 'jpg') {
-                                        uploadCoverImage(group.folderName, file);
+                                        uploadCoverImage(group.folderName, file, group.index);
                                     } else {
                                         alert('請上傳.jpg檔案');
                                     }
@@ -412,7 +412,7 @@ $(document).ready(function () {
                 $groupNameInput.hide();
             });
     
-            const coverImage = ture;
+            const coverImage = group.files.find(file => file.isTitle);
             if (coverImage) {
                 const $coverImageContainer = $('<div>').addClass('coverImageContainer').css({ display: 'flex', alignItems: 'center' });
     
@@ -437,7 +437,7 @@ $(document).ready(function () {
                     if (file) {
                         const fileExtension = file.name.split('.').pop().toLowerCase();
                         if (fileExtension === 'jpg') {
-                            uploadCoverImage(group.folderName, file);
+                            uploadCoverImage(group.folderName, file, group.index);
                         } else {
                             alert('請上傳.jpg檔案');
                         }
@@ -958,18 +958,19 @@ $(document).ready(function () {
     }
     
 
-    function uploadCoverImage(folderName, file) {
+    function uploadCoverImage(folderName, file, folderIndex) {
+        console.log('index-222', folderIndex);
         const formData = new FormData();
         formData.append('coverImage', file);
 
         $.ajax({
-            url: `/api/upload-cover/${folderName}`,
+            url: `/api/upload-cover/${folderIndex}`,
             method: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             success: function () {
-                console.log('Cover image uploaded successfully');
+                console.log('111Cover image uploaded successfully');
                 alert('Cover image uploaded successfully');
                 loadGallery(); // Reload gallery to see the new cover image
             },
@@ -998,27 +999,7 @@ $(document).ready(function () {
         });
     }
 
-    function uploadCoverImage(folderName, file) {
-        const formData = new FormData();
-        formData.append('coverImage', file);
-    
-        $.ajax({
-            url: `/api/upload-cover/${folderName}`,
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function () {
-                console.log('Cover image uploaded successfully');
-                alert('Cover image uploaded successfully');
-                loadGallery(); // Reload gallery to see the new cover image
-            },
-            error: function (err) {
-                console.error('Failed to upload cover image:', err);
-                alert('Failed to upload cover image');
-            }
-        });
-    }
+
     
 
     loadGallery();

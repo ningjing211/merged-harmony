@@ -120,17 +120,27 @@ app.get('/', (req, res) => {
 
 
 // 提供 JSON 檔案資料的 API
-app.get('/api/images', (req, res) => {
-    const jsonFilePath = path.join(__dirname, 'imagesOrder.json');
-    fs.readFile(jsonFilePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Error reading JSON file:', err);
-            res.status(500).send('Error reading data');
-        } else {
-          res.json(JSON.parse(data));
-        }
-    });
-  });
+// 這可能是給別的地方用的 先一起改一改 11-28-2024
+app.get('/api/images', async (req, res) => {
+    try {
+        // 從 Cloudinary 獲取 imagesOrder.json 的 URL
+        const resource = await cloudinary.api.resource('uploads/imagesOrder.json', { resource_type: 'raw' });
+        const fileUrl = resource.secure_url;
+
+        // 使用 fetch 下載 JSON 資料
+        const response = await fetch(fileUrl);
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json from Cloudinary');
+
+        // 將資料轉換為 JSON 格式
+        const data = await response.json();
+
+        // 回傳 JSON 給前端
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching JSON file from Cloudinary:', error);
+        res.status(500).send('Error reading data from Cloudinary');
+    }
+});
 
 // 動態設置上傳目標資料夾
 // const storage = multer.diskStorage({
@@ -193,9 +203,9 @@ app.use(express.json()); // This line is critical for parsing JSON in requests
 const coverStorage = multer.memoryStorage();
 const coverUpload = multer({ storage: coverStorage });
 
-app.post('/api/upload-cover/:folderName', coverUpload.single('coverImage'), async (req, res) => {
-    const folderName = req.params.folderName;
-    const localUploadPath = path.join(__dirname, 'uploads', folderName);
+app.post('/api/upload-cover/:folderIndex', coverUpload.single('coverImage'), async (req, res) => {
+    const folderIndex = req.params.folderIndex;
+    console.log('folderIndex1234', folderIndex);
 
     try {
         // 確認是否有文件
@@ -203,23 +213,12 @@ app.post('/api/upload-cover/:folderName', coverUpload.single('coverImage'), asyn
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        // 如果資料夾不存在，則創建
-        if (!fs.existsSync(localUploadPath)) {
-            fs.mkdirSync(localUploadPath, { recursive: true });
-        }
-
-        // 保存文件到本地
-        const localFilePath = path.join(localUploadPath, `${folderName}.jpg`);
-        await fs.promises.writeFile(localFilePath, req.file.buffer);
-
-        console.log(`Local file saved at: ${localFilePath}`);
-
-        // 將文件上傳到 Cloudinary
+        // 使用 Stream 上傳到 Cloudinary
         const streamifier = require('streamifier');
         const uploadStream = cloudinary.uploader.upload_stream(
             {
-                folder: `uploads/${folderName}`,
-                public_id: `${folderName}.jpg`,
+                folder: `uploads/Group - ${folderIndex}`, // 根據 Group - ${folderIndex} 命名資料夾
+                public_id: 'cover-image', // 固定使用 `cover-image` 作為 public_id
                 overwrite: true,
             },
             (error, result) => {
