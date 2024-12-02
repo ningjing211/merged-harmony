@@ -386,54 +386,57 @@ app.post('/api/update-images-order', async (req, res) => {
       console.log('Fetching imagesOrder.json from Cloudinary...');
       const resource = await cloudinary.api.resource('uploads/imagesOrder.json', { resource_type: 'raw' });
       const fileUrl = resource.secure_url;
+      console.log('印出fileUrl', fileUrl);
   
       // Step 2: 更新 imagesOrder.json 的內容
       console.log('Updating imagesOrder.json content...');
-      const updatedImagesOrder = JSON.stringify(newImagesOrder, null, 2);
   
       // Step 3: 上傳更新後的 imagesOrder.json 至 Cloudinary
       console.log('Uploading updated imagesOrder.json to Cloudinary...');
-      const uploadResponse = await cloudinary.uploader.upload_stream(
-        {
-          resource_type: 'raw',
-          public_id: 'uploads/imagesOrder',
-          overwrite: true,
-        },
-        (error, result) => {
-          if (error) {
-            console.error('Failed to upload imagesOrder.json to Cloudinary:', error);
-            return res.status(500).json({ error: 'Failed to upload updated imagesOrder.json' });
+
+      
+      // 上傳更新後的 imagesOrder.json
+      const updatedImagesOrderContent = JSON.stringify(newImagesOrder, null, 2);
+      await cloudinary.uploader.upload(
+          `data:application/json;base64,${Buffer.from(updatedImagesOrderContent).toString('base64')}`,
+          {
+              folder: 'uploads',
+              public_id: 'imagesOrder.json',
+              resource_type: 'raw',
+              overwrite: true,
+          },
+          (error, result) => {
+            if (error) {
+              console.error('Failed to upload imagesOrder.json to Cloudinary:', error);
+              return res.status(500).json({ error: 'Failed to upload updated imagesOrder.json' });
+            }
+            console.log('Updated imagesOrder.json uploaded successfully:', result.secure_url);
+            res.json({ message: 'Images order updated successfully', fileUrl: result.secure_url });
           }
-          console.log('Updated imagesOrder.json uploaded successfully:', result.secure_url);
-          res.json({ message: 'Images order updated successfully', fileUrl: result.secure_url });
-        }
       );
-  
-      // 寫入資料到 Cloudinary
-      const uploadStream = cloudinary.uploader.upload_stream(uploadResponse);
-      uploadStream.end(Buffer.from(updatedImagesOrder, 'utf-8'));
+      console.log('上傳結束ok')
     } catch (error) {
       console.error('Error updating imagesOrder.json:', error);
       res.status(500).json({ error: 'Failed to update imagesOrder.json' });
     }
   });
 
-app.post('/api/upload-image/:folderName/:index', upload.single('image'), async (req, res) => {
-    const folderName = req.params.folderName;
-    console.log('先印出foldername1', folderName);
+  app.post('/api/upload-image/:folderIndex/:index', upload.single('image'), async (req, res) => {
+    const folderIndex = req.params.folderIndex;
     const index = Number(req.params.index);
-    console.log('print index', index);
-    const imageDescription = req.params.imageDescription;
-    console.log('imageDescription', imageDescription);
-    const filePath = path.join(__dirname, 'imagesOrder.json');
-    console.log(filePath);
+    const imageDescription = req.body.imageDescription; // 假設描述從 body 傳遞
+    const filePath = 'uploads/imagesOrder.json'; // 在 Cloudinary 上的 JSON 路徑
+
     try {
         // 讀取 imagesOrder.json
-        const data = await fs.promises.readFile(filePath, 'utf8');
-        let imagesOrder = JSON.parse(data);
-        console.log('先印出foldername2', folderName);
-        const group = imagesOrder.find(g => g.folderName === folderName);
-        console.log(group);
+        const resource = await cloudinary.api.resource(filePath, { resource_type: 'raw' });
+        const fileUrl = resource.secure_url;
+        const response = await fetch(fileUrl);
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json from Cloudinary');
+        let imagesOrder = await response.json();
+
+        // 找到對應的 group
+        const group = imagesOrder.find(g => g.index === Number(folderIndex));
         if (!group) {
             return res.status(404).json({ error: 'Folder not found' });
         }
@@ -442,33 +445,75 @@ app.post('/api/upload-image/:folderName/:index', upload.single('image'), async (
             group.additionalImages = [];
         }
 
-        // 設定檔案名稱和路徑
+        // 上傳檔案到 Cloudinary
         const fileName = index + 1;
-        console.log(fileName);
         const imageFileName = `${fileName}.jpg`;
-        const imagePath = path.join(__dirname, 'uploads', folderName, imageFileName);
-        console.log('imagePath:', imagePath);
-        // 移動上傳的檔案到目標位置
-        console.log(req);
-        console.log('breakkkkkkkkkkkkkkkkkkery');
-        console.log(req.file);
-        console.log(req.file.path);
-        await fs.promises.rename(req.file.path, imagePath);
+        console.log('imageFileName', imageFileName);
+        const streamifier = require('streamifier');
+        const folderPath = `uploads/Group - ${folderIndex}`; // Cloudinary 資料夾路徑
+        console.log('folderPath', folderPath);
 
-        // 更新 imagesOrder.json 中的路徑
-        const image = group.additionalImages.find(file => file.index === index);
-        if (image) {
-            image.path = `/uploads/${folderName}/${imageFileName}`;
-            image.name = imageFileName;
-            console.log('xxx', image.path)
-        } else {
-            group.additionalImages.push({ name: imageFileName, path: `/uploads/${folderName}/${imageFileName}`, imageDescription: imageDescription});
-        }
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: folderPath,
+                public_id: fileName, // 使用檔名作為 public_id
+                overwrite: true,
+            },
+            async (error, result) => {
+                if (error) {
+                    console.error('Cloudinary upload error:', error);
+                    return res.status(500).json({ error: 'Failed to upload to Cloudinary' });
+                }
 
-        // 寫回更新後的 imagesOrder.json
-        await fs.promises.writeFile(filePath, JSON.stringify(imagesOrder, null, 2), 'utf8');
-        console.log(`Image uploaded successfully for ${folderName}, index ${index}: ${imagePath}`);
-        res.json({ path: `/uploads/${folderName}/${imageFileName}`, message: 'Image uploaded successfully' });
+                console.log('Cloudinary upload success:', result.secure_url);
+
+                console.log('測試index', index);
+                // 更新 imagesOrder.json 中的路徑
+                const image = group.additionalImages.find(file => {
+                    return file.index === index;
+                });                // 獲取對應的 folderName
+                const folderName = group.folderName;
+                console.log('找到的 folderName:', folderName);
+                
+                if (image) {
+                    console.log('上傳成功走這條路');
+                    console.log('image-index222', image.index);
+                    image.path = `/uploads/${folderName}/${imageFileName}`; // 使用 Cloudinary 的 secure_url
+                    image.name = imageFileName;
+                } else {
+                    console.log('上傳不成功???');
+                    console.log('image-index333', image.index);
+                    group.additionalImages.push({ 
+                        name: imageFileName, 
+                        path: `/uploads/${folderName}/${imageFileName}`, 
+                        imageDescription: 'what happened?' 
+                    });
+                }
+
+                // 更新 imagesOrder.json 並上傳回 Cloudinary
+                const updatedImagesOrderContent = JSON.stringify(imagesOrder, null, 2);
+                await cloudinary.uploader.upload(
+                    `data:application/json;base64,${Buffer.from(updatedImagesOrderContent).toString('base64')}`,
+                    {
+                        folder: 'uploads',
+                        public_id: 'imagesOrder.json',
+                        resource_type: 'raw',
+                        overwrite: true,
+                    }
+                );
+
+                
+
+                console.log(`Image uploaded successfully for Group - ${folderIndex}, index ${index}`);
+                res.json({ 
+                    path: result.secure_url, 
+                    message: 'Image uploaded successfully' 
+                });
+            }
+        );
+
+        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+
     } catch (err) {
         console.error('Error handling upload:', err);
         res.status(500).json({ error: 'Failed to handle upload' });
@@ -698,34 +743,88 @@ app.post('/api/remove-image', async (req, res) => {
 });
 
 // 創建資料夾 API
-app.post('/api/create-folder', (req, res) => {
-    const { folderName } = req.body;
-    const targetFolder = path.join(__dirname, 'uploads', folderName);
+// app.post('/api/create-folder', (req, res) => {
+//     const { folderName } = req.body;
+//     const targetFolder = path.join(__dirname, 'uploads', folderName);
     
-    if (!fs.existsSync(targetFolder)) {
-        fs.mkdirSync(targetFolder, { recursive: true });
-    }
-    res.status(200).send({ message: 'Folder created or already exists' });
-});
+//     if (!fs.existsSync(targetFolder)) {
+//         fs.mkdirSync(targetFolder, { recursive: true });
+//     }
+//     res.status(200).send({ message: 'Folder created or already exists' });
+// });
 
+// 複製圖片 API
 // 複製圖片 API
 app.post('/api/copy-image', async (req, res) => {
     try {
-        const { folderName, newFileName } = req.body; // 確認接收到 folderName 和 newFileName
+        const { folderName, newFileName, folderIndex } = req.body; // 確認接收到 folderName 和 newFileName
         console.log('folderName:', folderName);
         console.log('newFileName:', newFileName);
+        console.log('folderIndex:', folderIndex);
+        const index = Number(newFileName - 1);
+        console.log('看一下index', index);
+
+        // 定義 local 的來源檔案路徑
+        const localFilePath = path.join(__dirname, 'public', 'uploads', 'upload.jpg');
+        if (!fs.existsSync(localFilePath)) {
+            return res.status(404).json({ error: 'Local upload.jpg not found' });
+        }
 
         // 定義來源和目標路徑
-        const sourcePath = path.join(__dirname, 'uploads', 'upload.jpg');
-        const destinationPath = path.join(__dirname, folderName, `${newFileName}.jpg`);
+        const targetPublicId = `uploads/Group - ${folderIndex}/${newFileName}`;
+        console.log('targetPublicId',targetPublicId)
 
-        // 複製檔案
-        await fs.promises.copyFile(sourcePath, destinationPath);
-        console.log(`Successfully copied to ${destinationPath}`);
+        const result = await cloudinary.uploader.upload(localFilePath, {
+            folder: `uploads/Group - ${folderIndex}`,
+            public_id: newFileName,
+            overwrite: true,
+        });
+        console.log(`Successfully uploaded to ${result.secure_url}`);
 
+        // 獲取 imagesOrder.json
+        const imagesOrderResource = await cloudinary.api.resource('uploads/imagesOrder.json', { resource_type: 'raw' });
+        const response = await fetch(imagesOrderResource.secure_url);
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json from Cloudinary');
+        const imagesOrder = await response.json();
+
+        // 更新 imagesOrder.json
+        const group = imagesOrder.find(group => group.folderName === folderName);
+        if (!group) {
+            return res.status(404).json({ error: 'Folder not found in imagesOrder.json' });
+        }
+
+        if (!group.additionalImages) {
+            group.additionalImages = [];
+        }
+        
+        
+        group.additionalImages.push({
+            name: `${newFileName}.jpg`,
+            path: `/uploads/${folderName}/${newFileName}.jpg`,
+            index: index,
+            imageDescription: 'type your words'
+        });
+        console.log('Updated additionalImages array:', JSON.stringify(group.additionalImages, null, 2));
+
+        // 上傳更新後的 imagesOrder.json
+        const updatedImagesOrderContent = JSON.stringify(imagesOrder, null, 2);
+        await cloudinary.uploader.upload(
+            `data:application/json;base64,${Buffer.from(updatedImagesOrderContent).toString('base64')}`,
+            {
+                folder: 'uploads',
+                public_id: 'imagesOrder.json',
+                resource_type: 'raw',
+                overwrite: true,
+            }
+        );
+        console.log('測試一下', result.secure_url);
         // 回應成功訊息
-        res.json({ message: `Successfully copied to ${destinationPath}` });
-    } catch (err) {
+        res.json({
+            message: `Successfully copied to ${targetPublicId}`,
+            imageUrl: result.secure_url, // 回傳圖片的 URL
+        });
+
+        } catch (err) {
         console.error('Error copying file:', err);
         res.status(500).json({ error: 'Failed to copy file' });
     }
