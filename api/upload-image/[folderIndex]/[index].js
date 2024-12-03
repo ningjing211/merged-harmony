@@ -6,6 +6,7 @@ const { Readable } = require('stream');
 const fetch = require('node-fetch');
 
 // 這兩行必要
+const storage = multer.memoryStorage(); // 文件存儲到內存
 const multer = require('multer');
 const upload = multer({ storage: storage });
 
