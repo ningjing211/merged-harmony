@@ -128,4 +128,4 @@ cloudinary.config({
             res.status(500).json({ error: 'Failed to handle upload' });
         }
     }
-)};
+});
