@@ -446,7 +446,10 @@ app.post('/api/update-images-order', async (req, res) => {
   app.post('/api/upload-image/:folderIndex/:index', upload.single('image'), async (req, res) => {
     const folderIndex = req.params.folderIndex;
     const index = Number(req.params.index);
-    const imageDescription = req.body.imageDescription || 'Default description';
+    // console.log('req.body.imageDescription1', req.body.imageDescription);
+    // const imageDescription = req.body.imageDescription || 'Default description';
+    // console.log('imageDescription', req.body.imageDescription);
+
     const filePath = 'uploads/imagesOrder.json'; // 在 Cloudinary 上的 JSON 路徑
 
     try {
