@@ -1,4 +1,17 @@
-const admin = require('firebase-admin');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+const streamifier = require('streamifier');
+
+const { Readable } = require('stream');
+const fetch = require('node-fetch');
+
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
 
 // 初始化 Firebase Admin SDK
 if (!admin.apps.length) {

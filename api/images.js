@@ -1,50 +1,35 @@
-const fs = require('fs/promises');
-const path = require('path');
-export default async function handler(req, res) {
-    // 確定檔案路徑
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads'); // 改用 public/uploads 作為靜態檔案目錄
-    const imagesOrderPath = path.join(process.cwd(), 'public', 'imagesOrder.json');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+const streamifier = require('streamifier');
 
+const { Readable } = require('stream');
+const fetch = require('node-fetch');
+
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
+  
+module.exports = async function handler(req, res) {
     try {
-        // 讀取 imagesOrder.json 檔案
-        const data = await fs.readFile(imagesOrderPath, 'utf8');
-        let imagesOrder = JSON.parse(data);
+        // 從 Cloudinary 獲取 imagesOrder.json 的 URL
+        const resource = await cloudinary.api.resource('uploads/imagesOrder.json', { resource_type: 'raw' });
+        const fileUrl = resource.secure_url;
 
-        // 將 `imagesOrder.json` 中的內容與 `uploads` 資料夾同步
-        for (const group of imagesOrder) {
-            const folderPath = path.join(uploadsDir, group.folderName);
+        // 使用 fetch 下載 JSON 資料
+        const response = await fetch(fileUrl);
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json from Cloudinary');
 
-            try {
-                // 確認 uploads 資料夾中是否存在此資料夾
-                const files = await fs.readdir(folderPath);
-                const visibleFiles = files.filter(file => !file.startsWith('.'));
+        // 將資料轉換為 JSON 格式
+        const data = await response.json();
 
-                // 找到封面圖片
-                const titleImage = visibleFiles.find(file => file === `${group.folderName}.jpg`);
-                const otherImages = visibleFiles.filter(file => file !== `${group.folderName}.jpg`).sort();
-
-                // 更新 group.files 結構
-                group.files = [
-                    titleImage
-                        ? { name: titleImage, path: `/uploads/${group.folderName}/${titleImage}`, isTitle: true }
-                        : null,
-                    ...otherImages.map((file, index) => ({
-                        name: file,
-                        path: `/uploads/${group.folderName}/${file}`,
-                        isTitle: false,
-                        index: index + 1
-                    }))
-                ].filter(Boolean); // 過濾掉可能的 null 值
-            } catch (err) {
-                console.warn(`Folder not found for group ${group.folderName}:`, err.message);
-                group.files = []; // 若無資料夾則設為空
-            }
-        }
-
-        // 返回同步後的 imagesOrder 結果
-        res.status(200).json(imagesOrder);
-    } catch (err) {
-        console.error('Error reading imagesOrder.json:', err.message);
-        res.status(500).json({ error: 'Failed to load image order' });
+        // 回傳 JSON 給前端
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching JSON file from Cloudinary:', error);
+        res.status(500).send('Error reading data from Cloudinary');
     }
 }

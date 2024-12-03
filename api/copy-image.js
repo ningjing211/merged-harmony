@@ -1,41 +1,91 @@
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+const streamifier = require('streamifier');
+
+const { Readable } = require('stream');
+const fetch = require('node-fetch');
+
 const fs = require('fs');
 const path = require('path');
 
-export default async function handler(req, res) {
-    // 僅接受 POST 方法
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed, use POST' });
-    }
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+
+module.exports = async function handler(req, res) {
     try {
-        // 從請求中提取參數
-        const { folderName, newFileName } = req.body;
+        const { folderName, newFileName, folderIndex, howManytoAdds } = req.body; // 確認接收到 folderName 和 newFileName
+        console.log('folderName:', folderName);
+        console.log('newFileName:', newFileName);
+        console.log('folderIndex:', folderIndex);
+        const index = Number(newFileName - 1);
+        console.log('看一下index', index);
+        console.log('要新增幾張', howManytoAdds);
 
-        if (!folderName || !newFileName) {
-            return res.status(400).json({ error: 'Missing folderName or newFileName' });
+        // 定義 local 的來源檔案路徑
+        const localFilePath = path.join(__dirname, 'public', 'uploads', 'upload.jpg');
+        if (!fs.existsSync(localFilePath)) {
+            return res.status(404).json({ error: 'Local upload.jpg not found' });
         }
 
         // 定義來源和目標路徑
-        const sourcePath = path.join(process.cwd(), 'uploads', 'upload.jpg');
-        const destinationPath = path.join(process.cwd(), 'uploads', folderName, `${newFileName}.jpg`);
+        const targetPublicId = `uploads/Group - ${folderIndex}/${newFileName}`;
+        console.log('targetPublicId',targetPublicId)
 
-        console.log('Source Path:', sourcePath);
-        console.log('Destination Path:', destinationPath);
+        const result = await cloudinary.uploader.upload(localFilePath, {
+            folder: `uploads/Group - ${folderIndex}`,
+            public_id: newFileName,
+            overwrite: true,
+        });
+        console.log(`Successfully uploaded to ${result.secure_url}`);
 
-        // 檢查目標資料夾是否存在
-        const targetFolder = path.join(process.cwd(), 'uploads', folderName);
-        if (!fs.existsSync(targetFolder)) {
-            fs.mkdirSync(targetFolder, { recursive: true });
-            console.log('Target folder created:', targetFolder);
+        // 獲取 imagesOrder.json
+        const imagesOrderResource = await cloudinary.api.resource('uploads/imagesOrder.json', { resource_type: 'raw' });
+        const response = await fetch(imagesOrderResource.secure_url);
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json from Cloudinary');
+        const imagesOrder = await response.json();
+
+        // 更新 imagesOrder.json
+        const group = imagesOrder.find(group => group.folderName === folderName);
+        if (!group) {
+            return res.status(404).json({ error: 'Folder not found in imagesOrder.json' });
         }
 
-        // 複製檔案
-        await fs.promises.copyFile(sourcePath, destinationPath);
-        console.log(`Successfully copied to ${destinationPath}`);
+        if (!group.additionalImages) {
+            group.additionalImages = [];
+        }
+        
+        
+        group.additionalImages.push({
+            name: `${newFileName}.jpg`,
+            path: `/uploads/${folderName}/${newFileName}.jpg`,
+            index: index,
+            imageDescription: 'type your words'
+        });
+        console.log('Updated additionalImages array:', JSON.stringify(group.additionalImages, null, 2));
 
+        // 上傳更新後的 imagesOrder.json
+        const updatedImagesOrderContent = JSON.stringify(imagesOrder, null, 2);
+        await cloudinary.uploader.upload(
+            `data:application/json;base64,${Buffer.from(updatedImagesOrderContent).toString('base64')}`,
+            {
+                folder: 'uploads',
+                public_id: 'imagesOrder.json',
+                resource_type: 'raw',
+                overwrite: true,
+            }
+        );
+        console.log('測試一下', result.secure_url);
         // 回應成功訊息
-        res.status(200).json({ message: `Successfully copied to ${destinationPath}` });
-    } catch (err) {
+        res.json({
+            message: `Successfully copied to ${targetPublicId}`,
+            imageUrl: result.secure_url, // 回傳圖片的 URL
+        });
+
+        } catch (err) {
         console.error('Error copying file:', err);
         res.status(500).json({ error: 'Failed to copy file' });
     }

@@ -1,62 +1,57 @@
-const admin = require('firebase-admin');
-const dotenv = require('dotenv');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
+const streamifier = require('streamifier');
 
-// 加載 .env 檔案中的環境變數
-dotenv.config();
+const { Readable } = require('stream');
+const fetch = require('node-fetch');
 
-// 初始化 Firebase Admin SDK
-if (!admin.apps.length) {
-    const firebaseKey = Buffer.from(process.env.FIREBASE_KEY_BASE64, 'base64').toString('utf8');
-    admin.initializeApp({
-        credential: admin.credential.cert(JSON.parse(firebaseKey)),
-        databaseURL: process.env.FIREBASE_DATABASE_URL
-    });
-}
 
-const db = admin.database();
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed, use POST' });
-    }
 
+module.exports = async function handler(req, res) {
     const { folderName, fileName, newDescription } = req.body;
-
-    if (!folderName || !fileName || typeof newDescription !== 'string') {
-        return res.status(400).json({ error: 'Missing or invalid parameters' });
-    }
+    console.log('{ folderName, fileName, newDescription }', { folderName, fileName, newDescription })
 
     try {
-        // 取得現有的 imagesOrder 資料
-        const ref = db.ref('imagesOrder');
-        const snapshot = await ref.once('value');
-        const imagesOrder = snapshot.val();
+        // 1. 獲取 Cloudinary 上的 imagesOrder.json
+        const imagesOrderResource = await cloudinary.api.resource('uploads/imagesOrder.json', { resource_type: 'raw' });
+        const imagesOrderUrl = imagesOrderResource.secure_url;
 
-        if (!imagesOrder) {
-            return res.status(404).json({ error: 'imagesOrder not found' });
-        }
+        // 2. 下載並解析 JSON
+        const response = await fetch(imagesOrderUrl);
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json from Cloudinary');
+        const imagesOrder = await response.json();
 
-        // 找到指定的資料夾
+        console.log('Original JSON:', imagesOrder);
+            
+
+        // 3. 找到對應資料夾與圖片
         const group = imagesOrder.find(group => group.folderName === folderName);
-        if (!group) {
-            return res.status(404).json({ error: 'Folder not found in imagesOrder' });
-        }
+        if (!group) return res.status(404).json({ error: 'Folder not found' });
 
-        // 找到指定的圖片
         const image = group.additionalImages.find(img => img.name === fileName);
-        if (!image) {
-            return res.status(404).json({ error: 'Image not found in the specified folder' });
-        }
-
-        // 更新圖片描述
+        if (!image) return res.status(404).json({ error: 'Image not found' });
+ 
         image.imageDescription = newDescription;
+    
 
-        // 將更新後的資料寫回 Firebase
-        await ref.set(imagesOrder);
+        // 4. 更新 Cloudinary 上的 JSON 文件
+        const updatedImagesOrder = JSON.stringify(imagesOrder, null, 2);
+        
+        const uploadResponse = await cloudinary.uploader.upload(
+            `data:application/json;base64,${Buffer.from(updatedImagesOrder).toString('base64')}`,
+            { resource_type: 'raw', public_id: 'uploads/imagesOrder.json', overwrite: true }
+        );
 
-        res.json({ message: 'Image description updated successfully', updatedContent: imagesOrder });
+        console.log('Updated imagesOrder.json uploaded:', uploadResponse);
+        res.json({ message: 'Image description updated successfully', url: uploadResponse.secure_url });
     } catch (err) {
         console.error('Error updating image description:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
-};
+}
