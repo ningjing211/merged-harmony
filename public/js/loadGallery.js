@@ -725,9 +725,11 @@ $(document).ready(function () {
     
         // 計算可新增的 placeholder 數量（避免超過 20）
         const placeholdersToAdd = Math.min(count, 20 - existingItemsCount);
+        console.log('placehodersToAdd', placeholdersToAdd, '新增幾張');
     
         // 將 AJAX 請求包裝成 Promise
-        const copyImageToServer = (folderName, newFileName, folderIndex) => {
+        const copyImageToServer = (folderName, newFileName, folderIndex, placeholdersToAdd) => {
+            console.log('進來了 copyImageToServer');
             return new Promise((resolve, reject) => {
                 $.ajax({
                     url: `/api/copy-image`,
@@ -736,10 +738,12 @@ $(document).ready(function () {
                     data: JSON.stringify({
                         folderName: folderName,
                         newFileName: newFileName,
-                        folderIndex: folderIndex
+                        folderIndex: folderIndex,
+                        howManytoAdds: placeholdersToAdd
                     }),
                     success: function (data) {
                         // console.log('成功傳回來了', data.imageUrl);
+                        console.log('copyImageToServer從Server回來了');
                         resolve(data.imageUrl); // 傳回圖片 URL
                     },
                     error: function (err) {
@@ -757,8 +761,9 @@ $(document).ready(function () {
     
             try {
                 // 複製圖片並取得 URL
-                const imageUrl = await copyImageToServer(group.folderName, `${placeholderIndex + 1}`, group.index);
-    
+                console.log('準備呼叫copyImageToServer了');
+                const imageUrl = await copyImageToServer(group.folderName, `${placeholderIndex + 1}`, group.index, placeholdersToAdd);
+                console.log('呼叫完copyImageToServer了, 印出imageURL:', imageUrl);
                 // 建立圖片區塊
                 const $imgDiv = $('<div>').addClass('imageItem');
                 
@@ -789,7 +794,7 @@ $(document).ready(function () {
                     $descriptionInput.hide();
                 });
     
-                const $uploadButton = $('<button>').text('上傳圖片').on('click', function () {
+                const $uploadButton = $('<button>').text('上傳圖片').attr('data-index', placeholderIndex).on('click', function () {
                     const $fileInput = $('<input>').attr({
                         type: 'file',
                         accept: '.jpg'
@@ -812,24 +817,26 @@ $(document).ready(function () {
     
                     $fileInput.click();
                 });
-    
-                const $removeButton = $('<button>').text('移除圖片').on('click', function () {
+                console.log('placeholderIndex333', placeholderIndex);
+                const $removeButton = $('<button>').text('移除圖片').attr('data-index', placeholderIndex).on('click', function () {
                     const folderName = group.folderName;
                     const imageName = $(this).siblings('img').attr('alt');
-    
+                    const imageIndex = Number($(this).data('index'));
+                    console.log('Removing image333:', { folderName, imageName, imageIndex });
+
                     $.ajax({
                         url: '/api/remove-image',
                         method: 'POST',
                         contentType: 'application/json',
-                        data: JSON.stringify({ folderName, imageName }),
+                        data: JSON.stringify({ folderName, imageName, imageIndex }),
                         success: function () {
                             alert('圖片移除成功');
                             $imgDiv.remove();
                             loadGallery();
                         },
                         error: function (error) {
-                            console.error('移除圖片失敗:', error);
-                            alert('移除圖片失敗');
+                            console.error('移除圖片失敗222:', error);
+                            alert('移除圖片失敗222');
                         }
                     });
                 });
@@ -842,10 +849,12 @@ $(document).ready(function () {
         };
     
         // 依序建立 placeholders
-        for (let i = 0; i < placeholdersToAdd; i++) {
-            const placeholderIndex = existingItemsCount + i;
-            createPlaceholder(placeholderIndex);
-        }
+        (async () => {
+            for (let i = 0; i < placeholdersToAdd; i++) {
+                const placeholderIndex = existingItemsCount + i;
+                await createPlaceholder(placeholderIndex);
+            }
+        })();
     }
     
 
@@ -882,7 +891,7 @@ $(document).ready(function () {
         return new Promise((resolve, reject) => {
             const formData = new FormData();
             formData.append('image', file);
-    
+            console.log('這裡印出folderIndex', index);
             $.ajax({
                 url: `/api/upload-image/${folderIndex}/${index}`,
                 method: 'POST',
