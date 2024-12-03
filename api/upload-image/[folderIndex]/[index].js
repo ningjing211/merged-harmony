@@ -14,8 +14,7 @@ cloudinary.config({
 
 
   module.exports = async function handler(req, res) {
-    const folderIndex = req.params.folderIndex;
-    const index = Number(req.params.index);
+    const { folderIndex, index } = req.query; // 動態路由參數從 req.query 提取
     const imageDescription = req.body.imageDescription; // 假設描述從 body 傳遞
     const filePath = 'uploads/imagesOrder.json'; // 在 Cloudinary 上的 JSON 路徑
 
@@ -38,7 +37,7 @@ cloudinary.config({
         }
 
         // 上傳檔案到 Cloudinary
-        const fileName = index + 1;
+        const fileName = Number(index) + 1;
         const imageFileName = `${fileName}.jpg`;
         console.log('imageFileName', imageFileName);
         const streamifier = require('streamifier');
