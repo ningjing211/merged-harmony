@@ -5,6 +5,9 @@ const streamifier = require('streamifier');
 const { Readable } = require('stream');
 const fetch = require('node-fetch');
 
+// 這兩行必要
+const multer = require('multer');
+const upload = multer({ storage: storage });
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -12,7 +15,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
-
+// 12-03-2024 - 這裡改過喔, 跟server.js端的稍微不一樣, 因為vercel的關係用query, 然後imageDes拿掉, req.body不能用
   module.exports = async function handler(req, res) {
     const { folderIndex, index } = req.query; // 動態路由參數從 req.query 提取
     // const imageDescription = req.body.imageDescription || 'Default description';
