@@ -127,5 +127,5 @@ cloudinary.config({
             console.error('Error handling upload:', err);
             res.status(500).json({ error: 'Failed to handle upload' });
         }
-    }
-});
+    });
+}
