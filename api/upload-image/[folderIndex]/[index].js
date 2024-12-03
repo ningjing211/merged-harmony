@@ -15,7 +15,7 @@ cloudinary.config({
 
   module.exports = async function handler(req, res) {
     const { folderIndex, index } = req.query; // 動態路由參數從 req.query 提取
-    const imageDescription = req.body.imageDescription; // 假設描述從 body 傳遞
+    const imageDescription = req.body.imageDescription || 'Default description';
     const filePath = 'uploads/imagesOrder.json'; // 在 Cloudinary 上的 JSON 路徑
 
     try {
