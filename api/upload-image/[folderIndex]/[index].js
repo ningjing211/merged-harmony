@@ -16,6 +16,8 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
+// upload要寫
+// 要使用Number(index)
 // 12-03-2024 - 這裡改過喔, 跟server.js端的稍微不一樣, 因為vercel的關係用query, 然後imageDes拿掉, req.body不能用
   module.exports = async function handler(req, res) {
     upload.single('image')(req, res, async (err) => {
@@ -63,21 +65,21 @@ cloudinary.config({
 
                     console.log('Cloudinary upload success:', result.secure_url);
 
-                    console.log('測試index', index);
+                    console.log('測試index', Number(index));
                     // 更新 imagesOrder.json 中的路徑
                     const image = group.additionalImages.find(file => {
                         // Debug information
                         console.log('Debugging file:', file); // Print the current file being checked
                         console.log('file.index:', file.index); // Print the index of the current file
                         console.log('index:', index); // Print the index being searched for
-                        console.log('Comparison result (file.index === index):', file.index === index); // Print the result of the comparison
+                        console.log('Comparison result (file.index === index):', file.index === Number(index)); // Print the result of the comparison
                     
                         // Return the comparison result
-                        return file.index === index;
+                        return file.index === Number(index);
                     });            
                     // Additional debug if image is not found
                     if (!image) {
-                        console.warn('No matching image found for index:', index);
+                        console.warn('No matching image found for index:', Number(index));
                         console.warn('Available indices in additionalImages:', group.additionalImages.map(file => file.index)); // Print all indices
                     }
                     // 獲取對應的 folderName
