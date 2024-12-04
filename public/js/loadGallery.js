@@ -742,7 +742,7 @@ $(document).ready(function () {
                         howManytoAdds: placeholdersToAdd
                     }),
                     success: function (data) {
-                        // console.log('成功傳回來了', data.imageUrl);
+                        // console.log('成功傳回來了ok', data.imageUrl); 
                         console.log('copyImageToServer從Server回來了');
                         resolve(data.imageUrl); // 傳回圖片 URL
                     },
