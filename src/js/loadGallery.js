@@ -742,7 +742,7 @@ $(document).ready(function () {
                         howManytoAdds: placeholdersToAdd
                     }),
                     success: function (data) {
-                        // console.log('成功傳回來了', data.imageUrl);
+                        // console.log('成功傳回來了ok', data.imageUrl); 
                         console.log('copyImageToServer從Server回來了');
                         resolve(data.imageUrl); // 傳回圖片 URL
                     },
@@ -891,6 +891,7 @@ $(document).ready(function () {
         return new Promise((resolve, reject) => {
             const formData = new FormData();
             formData.append('image', file);
+            formData.append('imageDescription', 'Your image description'); // 描述
             console.log('這裡印出folderIndex', index);
             $.ajax({
                 url: `/api/upload-image/${folderIndex}/${index}`,
