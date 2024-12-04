@@ -14,8 +14,8 @@ cloudinary.config({
 
 
 module.exports = async function handler(req, res) {
-    const folderIndex = req.params.folderIndex;
-    console.log('folderIndex1234', folderIndex);
+    const folderIndex = req.query.folderIndex; // 從 query 參數中讀取 folderIndex
+    console.log('Received folderIndex:', folderIndex);
 
     try {
         // 確認是否有文件
