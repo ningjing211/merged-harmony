@@ -952,7 +952,7 @@ $(document).ready(function () {
         formData.append('coverImage', file);
 
         $.ajax({
-            url: `/api/upload-cover/${folderIndex}`,
+            url: `/api/upload-cover?folderIndex=${folderIndex}`, // 這裡通過 query 參數傳遞 folderIndex
             method: 'POST',
             data: formData,
             processData: false,
