@@ -14,8 +14,10 @@ cloudinary.config({
 
 // 這兩行必要
 const multer = require('multer');
-const storage = multer.memoryStorage(); // 文件存儲到內存
-const upload = multer({ storage: storage });  
+
+// 使用 Multer 的記憶體存儲
+const coverStorage = multer.memoryStorage();
+const coverUpload = multer({ storage: coverStorage });
 
 module.exports = async function handler(req, res) {
     coverUpload.single('coverImage')(req, res, async (err) => {
