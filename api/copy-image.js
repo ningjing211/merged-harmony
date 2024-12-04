@@ -26,7 +26,8 @@ module.exports = async function handler(req, res) {
         console.log('要新增幾張', howManytoAdds);
 
         // 定義 local 的來源檔案路徑
-        const localFilePath = path.join(__dirname, 'public', 'uploads', 'upload.jpg');
+        // 移除 public
+        const localFilePath = path.join(__dirname, 'uploads', 'upload.jpg');
         if (!fs.existsSync(localFilePath)) {
             return res.status(404).json({ error: 'Local upload.jpg not found' });
         }
