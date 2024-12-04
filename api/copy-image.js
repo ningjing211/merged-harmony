@@ -29,6 +29,7 @@ module.exports = async function handler(req, res) {
         // 移除 public
         const localFilePath = path.join('/uploads', 'upload.jpg');// 不使用 __dirname
         if (!fs.existsSync(localFilePath)) {
+            console.log('沒有辦法讀取是嗎?');
             return res.status(404).json({ error: 'Local upload.jpg not found' });
         }
 
