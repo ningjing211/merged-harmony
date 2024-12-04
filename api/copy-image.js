@@ -27,7 +27,7 @@ module.exports = async function handler(req, res) {
 
         // 定義 local 的來源檔案路徑
         // 移除 public
-        const localFilePath = path.join(__dirname, 'uploads', 'upload.jpg');
+        const localFilePath = path.join('/uploads', 'upload.jpg');// 不使用 __dirname
         if (!fs.existsSync(localFilePath)) {
             return res.status(404).json({ error: 'Local upload.jpg not found' });
         }
