@@ -22,10 +22,13 @@ $(document).ready(function () {
             data: JSON.stringify({ username, password }), // 將帳號和密碼轉為 JSON 格式
             credentials: 'include', // 確保攜帶 Cookie
             success: function (response) {
-                console.log('後端回應:', response); // 調試用
-                if (response.message === '登入成功') {
-                    window.location.href = '/api/admin';
-                }            },
+                console.log('後端來囉:'); // 調試用
+                console.log('後端回應:', response.message); // 調試用
+                // window.location.href = '/admin.html';
+                document.open(); // 清空目前的頁面內容
+                document.write(response); // 插入後端返回的 HTML
+                document.close(); // 完成頁面更新
+            },
             error: function (xhr, status, error) {
                 console.error('請求失敗:', error); // 調試用
                 alert('請求失敗，請稍後再試');
