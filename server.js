@@ -16,7 +16,6 @@ const streamifier = require('streamifier');
 const { Readable } = require('stream');
 const fetch = require('node-fetch');
 
-
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -176,7 +175,7 @@ app.post('/api/login', async (req, res) => {
 
 // 管理頁面訪問邏輯
 app.get('/admin.html', (req, res) => {
-    console.log('test');
+    console.log('admin from public folder and from /admin.html API');
     // 驗證用戶是否已登入
     // console.log('check session at admin', req.session)
     // console.log('!req.session.username', !req.session.username)
@@ -184,6 +183,7 @@ app.get('/admin.html', (req, res) => {
         return res.redirect('/login.html');
     }
     // 如果已登入，提供 admin.html
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
     
 });
 

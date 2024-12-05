@@ -24,7 +24,7 @@ $(document).ready(function () {
             success: function (response) {
                 console.log('後端回應:', response); // 調試用
                 if (response.message === '登入成功') {
-                    window.location.href = '/admin';
+                    window.location.href = '/admin.html';
                 }            },
             error: function (xhr, status, error) {
                 console.error('請求失敗:', error); // 調試用
