@@ -23,6 +23,8 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
 
+const session = require('express-session');
+
 // 定義來源和目標資料夾路徑
 const sourceDir = path.join(__dirname, 'uploads');
 const targetDir = path.join(__dirname, 'public', 'uploads');
@@ -114,13 +116,75 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist/index.html'));
   });
 
+app.use(express.json()); // This line is critical for parsing JSON in requests
+app.use(express.urlencoded({ extended: true })); // 若使用 URL 編碼表單，需啟用這行
 
+// 初始化會話中間件
+app.use(
+    session({
+        secret: 'your-secret-key', // 替換為隨機字串
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true, // 防止客户端通过 JS 访问 cookie
+            secure: false, // 如果是 HTTPS，设置为 true
+            sameSite: 'lax', // 防止 CSRF 攻击
+        }
+    })
+);
+
+// 管理頁面訪問邏輯
 app.get('/login.html', (req, res) => {
+    console.log('check session', req.session)
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
-  
+
+// 定義 /api/login 路由
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body; // 從 body 提取數據
+    console.log('帳號:', username, '密碼:', password);
+
+    try {
+        // 從 Cloudinary 獲取 accounts.json
+        const response = await fetch('https://res.cloudinary.com/dgjpg3g8s/raw/upload/v1234567890/uploads/accounts.json');
+        if (!response.ok) throw new Error('無法獲取 accounts.json');
+        const accounts = await response.json();
+
+        // 驗證帳號與密碼
+        const account = accounts.find((acc) => acc.accounts === username);
+        if (!account) {
+            return res.status(401).json({ message: '查無此帳號' });
+        }
+        if (account.password !== password) {
+            return res.status(401).json({ message: '密碼錯誤' });
+        }
+
+        // 設置 session
+        // 設置 session
+        console.log('Before session set:', req.session);
+        req.session.username = username;
+        console.log('After session set:', req.session);
+
+        res.status(200).json({ message: '登入成功' });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: '系統錯誤，請稍後再試' });
+    }
+});
+
+
+
+// 管理頁面訪問邏輯
 app.get('/admin.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    console.log('test');
+    // 驗證用戶是否已登入
+    // console.log('check session at admin', req.session)
+    // console.log('!req.session.username', !req.session.username)
+    if (!req.session.username) {
+        return res.redirect('/login.html');
+    }
+    // 如果已登入，提供 admin.html
+    
 });
 
 
@@ -182,7 +246,6 @@ const upload = multer({ storage: storage });
 
 // 新增一個函數，用於更新 imagesOrder.json
 
-app.use(express.json()); // This line is critical for parsing JSON in requests
 
 // Set up storage for multer for cover image uploads
 // const coverStorage = multer.diskStorage({
