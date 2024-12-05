@@ -184,8 +184,9 @@ app.get('/admin.html', (req, res) => {
     }
     // 如果已登入，提供 admin.html
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-    
 });
+
+
 
 
 // 提供 JSON 檔案資料的 API

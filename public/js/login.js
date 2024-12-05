@@ -15,7 +15,7 @@ $(document).ready(function () {
 
         // 發送 AJAX 請求到後端
         $.ajax({
-            url: '/api/login', // 後端 API 路徑
+            url: '/api/admin', // 後端 API 路徑
             method: 'POST',
             contentType: 'application/json',
             headers: { 'Content-Type': 'application/json' },
