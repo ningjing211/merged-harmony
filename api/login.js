@@ -1,6 +1,3 @@
-const app = express();
-const express = require('express');
-
 const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 const streamifier = require('streamifier');
@@ -15,23 +12,6 @@ cloudinary.config({
   });
 
 const session = require('express-session');
-
-app.use(express.json()); // This line is critical for parsing JSON in requests
-app.use(express.urlencoded({ extended: true })); // 若使用 URL 編碼表單，需啟用這行
-
-// 初始化會話中間件
-app.use(
-    session({
-        secret: 'your-secret-key', // 替換為隨機字串
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            httpOnly: true, // 防止客户端通过 JS 访问 cookie
-            secure: false, // 如果是 HTTPS，设置为 true
-            sameSite: 'lax', // 防止 CSRF 攻击
-        }
-    })
-);
 
 module.exports = async function handler(req, res) {
 
