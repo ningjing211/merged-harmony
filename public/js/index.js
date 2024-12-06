@@ -62,7 +62,7 @@ localLinks.forEach((link) => {
 async function loadDetailsImage() {
     try {
         // Fetch JSON file containing image paths
-        const response = await fetch('/api/images');
+        const response = await fetch('/api/images-order');
         if (!response.ok) throw new Error('Failed to fetch imagesOrder.json');
 
         const data = (await response.json()).reverse();
@@ -410,7 +410,7 @@ const textureLoader = new THREE.TextureLoader(loadingManager);
 async function loadImages() {
     try {
         // Fetch JSON file containing image paths
-        const response = await fetch('/api/images');
+        const response = await fetch('/api/images-order');
         if (!response.ok) throw new Error('Failed to fetch imagesOrder.json');
 
         const data = (await response.json()).reverse();
@@ -868,7 +868,7 @@ async function addCards(eventName) {
 
     try {
         // 從後端獲取 JSON 資料
-        const response = await fetch('/api/images');
+        const response = await fetch('/api/images-order');
         if (!response.ok) throw new Error('Failed to fetch JSON data.');
 
         const imagesData = (await response.json()).reverse();
@@ -1243,7 +1243,7 @@ window.addEventListener("keydown", (event) => {
 
 // async function fetchImagesData(eventName) {
 //     try {
-//         const response = await fetch('/api/images'); // 向後端請求 JSON 資料
+//         const response = await fetch('/api/images-order'); // 向後端請求 JSON 資料
 //         if (!response.ok) throw new Error('Failed to fetch data');
 
 //         const imagesData = await response.json();
