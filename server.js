@@ -174,16 +174,90 @@ app.post('/api/login', async (req, res) => {
 
 
 // 管理頁面訪問邏輯
-app.get('/admin.html', (req, res) => {
-    console.log('admin from public folder and from /admin.html API');
-    // 驗證用戶是否已登入
-    // console.log('check session at admin', req.session)
-    // console.log('!req.session.username', !req.session.username)
-    if (!req.session.username) {
-        return res.redirect('/login.html');
+// app.get('/admin.html', (req, res) => {
+//     console.log('admin from public folder and from /admin.html API');
+//     // 驗證用戶是否已登入
+//     // console.log('check session at admin', req.session)
+//     // console.log('!req.session.username', !req.session.username)
+    
+//     // 12-05-2024-local開發的時候把這個拿掉
+//     if (!req.session.username) {
+//         return res.redirect('/login.html');
+//     }
+
+//     // 如果已登入，提供 admin.html
+//     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+// });
+
+// 處理 /api/admin 路由
+app.all('/api/admin', async (req, res) => {
+    // Step 1: 檢查是否有 Cookie
+    console.log('有進來?? 3 - ');
+    const cookies = req.headers.cookie || '';
+    const usernameCookie = cookies
+        .split('; ')
+        .find((row) => row.startsWith('username='));
+    const username = usernameCookie ? usernameCookie.split('=')[1] : null;
+
+    if (req.method === 'GET') {
+        // 如果沒有會話，返回 login.html
+        if (!username) {
+            const loginPath = path.join(process.cwd(), 'public', 'login.html');
+            const loginHtml = fs.readFileSync(loginPath, 'utf8');
+            res.setHeader('Content-Type', 'text/html');
+            return res.status(200).send(loginHtml);
+        }
+
+        // 如果有會話，返回 admin.html
+        const adminPath = path.join(process.cwd(), 'public', 'admin.html');
+        const adminHtml = fs.readFileSync(adminPath, 'utf8');
+        res.setHeader('Content-Type', 'text/html');
+        return res.status(200).send(adminHtml);
     }
-    // 如果已登入，提供 admin.html
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+
+    if (req.method === 'POST') {
+        // Step 2: 使用 req.body 直接接收數據
+        console.log('有進來?? 4 - ');
+
+        try {
+            const { username, password } = req.body;
+            console.log('帳號:', username, '密碼:', password);
+
+            // Step 3: 從 Cloudinary 獲取 accounts.json
+            const response = await fetch(
+                'https://res.cloudinary.com/dgjpg3g8s/raw/upload/v1234567890/uploads/accounts.json'
+            );
+            if (!response.ok) throw new Error('無法獲取 accounts.json');
+            const accounts = await response.json();
+
+            // Step 4: 驗證用戶名和密碼
+            const account = accounts.find((acc) => acc.accounts === username);
+            if (!account) {
+                return res.status(401).json({ message: '查無此帳號' });
+            }
+            if (account.password !== password) {
+                return res.status(401).json({ message: '密碼錯誤' });
+            }
+
+            // Step 5: 設置 Cookie 並返回 admin.html
+            res.setHeader(
+                'Set-Cookie',
+                `username=${username}; HttpOnly; Path=/; Max-Age=3600; SameSite=Strict`
+            );
+            console.log('用戶成功登錄:', username);
+
+            const adminPath = path.join(process.cwd(), 'public', 'admin.html');
+            const adminHtml = fs.readFileSync(adminPath, 'utf8');
+            res.setHeader('Content-Type', 'text/html');
+            return res.status(200).send(adminHtml);
+        } catch (error) {
+            console.error('Login error:', error);
+            res.status(500).json({ message: '系統錯誤，請稍後再試' });
+        }
+    } else {
+        res.setHeader('Allow', ['GET', 'POST']);
+        res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
 });
 
 
