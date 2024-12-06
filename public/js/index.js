@@ -156,14 +156,36 @@ function addSwipeSections() {
     bottomSwipeSection.classList.add("hidden");
 
     document.body.appendChild(bottomSwipeSection);
+    
+
 
     // Trigger a reflow to ensure the class is applied, then remove the hidden class
     requestAnimationFrame(() => {
         bottomSwipeSection.classList.remove("hidden");
+        console.log('這裡有執行嗎？111')
+        imgElement.classList.remove("hidden");
+        console.log('這裡有執行嗎？222')
     });
 }
 
-
+    // Create the img element
+    const imgElement = `
+        <img 
+            src="https://conflux-tech.com/wp-content/uploads/2024/12/Asset-6.png" 
+            alt="Scroll Left-Right"
+            class="swipe-section hidden"
+            style="
+            width: 46px;
+            height: auto;
+            object-fit: contain;
+            position: absolute;
+            bottom: 90px;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            margin: 0 auto;"
+        >
+    `;
 
     // Create right swipe section overlay
     const bottomSwipeSection = document.createElement("div");
@@ -174,11 +196,13 @@ function addSwipeSections() {
     bottomSwipeSection.style.right = "0";
     bottomSwipeSection.style.width = "100%"; // Right half of the screen
     bottomSwipeSection.style.height = "25%";
-    bottomSwipeSection.style.zIndex = "100"; // Ensure it's above WebGL canvas
+    bottomSwipeSection.style.zIndex = "9"; // Ensure it's above WebGL canvas
     bottomSwipeSection.style.backgroundColor = "rgba(115, 255, 70, 0.2)"; // Transparent background
 
 if(isMobile) {
+   
     document.body.appendChild(bottomSwipeSection);
+    bottomSwipeSection.insertAdjacentHTML("afterend", imgElement);
 
     let startX = 0;
     let scrollPos = window.scrollY;
@@ -364,6 +388,7 @@ const continueAnimation = () => {
     swipeSections.forEach(section => {
         section.classList.remove("hidden"); // 顯示 swipe-section
     });
+    
 
     const mainWebGL = document.querySelector('.main-webgl');
     mainWebGL.classList.add("openList"); // 淡出 main-webgl
