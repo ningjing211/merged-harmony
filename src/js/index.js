@@ -179,7 +179,7 @@ function addSwipeSections() {
             height: auto;
             object-fit: contain;
             position: absolute;
-            bottom: 90px;
+            bottom: 40px;
             left: 0;
             right: 0;
             z-index: 10;
