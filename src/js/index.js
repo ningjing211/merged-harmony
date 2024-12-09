@@ -141,21 +141,11 @@ const detailsImage = await loadDetailsImage();
 function removeSwipeSections() {
     // Add fade-out effect
     bottomSwipeSection.classList.add("hidden");
-    const element = document.querySelector('img.swipe-section');
-    // 檢查是否選取到元素
-    if (element) {
-        // 為元素添加 hidden class
-        element.classList.add('hidden');
-    } else {
-        console.error('Element not found');
-    }
+
     // Wait for the transition to complete before removing from DOM
     setTimeout(() => {
         if (bottomSwipeSection.parentNode) {
             bottomSwipeSection.parentNode.removeChild(bottomSwipeSection);
-        }
-        if (element.parentNode) {
-            element.parentNode.removeChild(element);
         }
     }, 500); // 500ms matches the CSS transition duration
 }
@@ -164,111 +154,41 @@ function removeSwipeSections() {
 function addSwipeSections() {
     // Add to the DOM with the hidden class
     bottomSwipeSection.classList.add("hidden");
-    imgElement.classList.add("hidden");
 
     document.body.appendChild(bottomSwipeSection);
-    document.body.appendChild(imgElement);
-
 
     // Trigger a reflow to ensure the class is applied, then remove the hidden class
     requestAnimationFrame(() => {
         bottomSwipeSection.classList.remove("hidden");
-        console.log('這裡有執行嗎？111')
-        imgElement.classList.remove("hidden");
-        console.log('這裡有執行嗎？222')
     });
 }
 
-    // Create the img element
-    // const imgElement = `
-    //     <img 
-    //         src="https://conflux-tech.com/wp-content/uploads/2024/12/Asset-6.png" 
-    //         alt="Scroll Left-Right"
-    //         class="swipe-section hidden"
-    //         style="
-    //         width: 46px;
-    //         height: auto;
-    //         object-fit: contain;
-    //         position: absolute;
-    //         bottom: 40px;
-    //         left: 0;
-    //         right: 0;
-    //         z-index: 10;
-    //         margin: 0 auto;"
-    //     >
-    // `;
-
-    // Create the img element dynamically
-    const imgElement = document.createElement("img");
-    imgElement.src = "https://conflux-tech.com/wp-content/uploads/2024/12/Asset-6.png";
-    imgElement.alt = "Scroll Left-Right";
-    imgElement.classList.add("swipe-section");
-    imgElement.classList.add("hidden");
-    imgElement.style.width = "46px";
-    imgElement.style.height = "auto";
-    imgElement.style.objectFit = "contain";
-    imgElement.style.position = "absolute";
-    imgElement.style.bottom = "40px";
-    imgElement.style.left = "0";
-    imgElement.style.right = "0";
-    imgElement.style.zIndex = "10";
-    imgElement.style.margin = "0 auto";
 
 
-    // Create right swipe section overlay
-    const bottomSwipeSection = document.createElement("div");
-    bottomSwipeSection.classList.add("swipe-section");
-    bottomSwipeSection.classList.add("hidden");
-    bottomSwipeSection.style.position = "absolute";
-    bottomSwipeSection.style.bottom = "0";
-    bottomSwipeSection.style.right = "0";
-    bottomSwipeSection.style.width = "100%"; // Right half of the screen
-    bottomSwipeSection.style.height = "25%";
-    bottomSwipeSection.style.zIndex = "9"; // Ensure it's above WebGL canvas
-    bottomSwipeSection.style.backgroundColor = "rgba(115, 255, 70, 0.2)"; // Transparent background
+// Create right swipe section overlay
+const bottomSwipeSection = document.createElement("div");
+bottomSwipeSection.classList.add("swipe-section");
+bottomSwipeSection.classList.add("hidden");
+bottomSwipeSection.style.position = "absolute";
+bottomSwipeSection.style.bottom = "0px";
+bottomSwipeSection.style.right = "0px";
+bottomSwipeSection.style.width = "100%";
+bottomSwipeSection.style.height = "25%";
+bottomSwipeSection.style.zIndex = "100";
+bottomSwipeSection.style.backgroundColor = "rgba(115, 255, 70, 0.2)";
+bottomSwipeSection.style.backgroundImage = "url('https://conflux-tech.com/wp-content/uploads/2024/12/Asset-6.png')";
+bottomSwipeSection.style.backgroundPosition = "center";
+bottomSwipeSection.style.backgroundRepeat = "no-repeat";
+bottomSwipeSection.style.backgroundSize = "16%";
+
 
 if(isMobile) {
-   
     document.body.appendChild(bottomSwipeSection);
-    document.body.appendChild(imgElement);
-
 
     let startX = 0;
     let scrollPos = window.scrollY;
 
     [bottomSwipeSection].forEach(section => {
-
-        section.addEventListener("click", (e) => {
-            e.stopPropagation(); // 阻止事件傳播，防止穿透到 WebGL 層
-        });
-
-    section.addEventListener("touchmove", (e) => {
-
-
-        const currentX = e.touches[0].clientX;
-        const currentY = e.touches[0].clientY;
-        const deltaX = currentX - startX;
-        const deltaY = currentY - startY;
-
-        // 如果水平滑動的距離大於垂直滑動的距離，則執行水平滾動
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            e.preventDefault(); // 阻止垂直滾動
-            window.scrollBy({
-                top: 0,
-                left: -deltaX * 2, // 調整此倍數控制滑動速度
-                behavior: "smooth"
-            });
-            startX = currentX; // 更新起始點位置
-        }
-        });
-
-    section.addEventListener("touchend", () => {
-        // Update scroll position if necessary
-        scrollPos = window.scrollY;
-    });
-    });
-
-    [imgElement].forEach(section => {
 
         section.addEventListener("click", (e) => {
             e.stopPropagation(); // 阻止事件傳播，防止穿透到 WebGL 層
@@ -356,7 +276,7 @@ window.addEventListener("mousemove", e => {
 
 const music = new Audio("/sounds/music-bg.mp3");
 
-music.volume = 0.07
+music.volume = 0.001
 
 const respiration = new Audio("/sounds/music-bg.mp3")
 respiration.volume = 0.01
@@ -449,7 +369,6 @@ const continueAnimation = () => {
     swipeSections.forEach(section => {
         section.classList.remove("hidden"); // 顯示 swipe-section
     });
-    
 
     const mainWebGL = document.querySelector('.main-webgl');
     mainWebGL.classList.add("openList"); // 淡出 main-webgl
@@ -925,54 +844,13 @@ function getVideoId(url) {
 
 async function addCards(eventName) {
     // console.log(eventName);
-    const main = document.getElementById("player");
-
-    // 創建 loading 元素
-    const loadingElement = document.createElement("div");
-    loadingElement.id = "loading-animation";
-    loadingElement.innerHTML = `
-        <div class="loading-spinner"></div>
-        <p>Loading...</p>
-    `;
-    main.appendChild(loadingElement);
-
-    // 加入 CSS 樣式（可選）
-    const loadingStyle = document.createElement("style");
-    loadingStyle.innerHTML = `
-        #loading-animation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            font-size: 18px;
-            z-index: 9999;
-        }
-        .loading-spinner {
-            border: 8px solid rgba(255, 255, 255, 0.3);
-            border-top: 8px solid #fff;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(loadingStyle);
 
     // 如果是手機，移除滑動區域
     if (isMobile) {
         await removeSwipeSections();
     }
+
+    const main = document.getElementById("player");
 
     // 檢查是否已有 .page-event 區域，如果有則先清除其內容
     const existingPageEvent = main.querySelector(".page-event");
@@ -1086,8 +964,6 @@ async function addCards(eventName) {
         `;
     }
     document.head.appendChild(style);
-    // 移除 loading 動畫
-    main.removeChild(loadingElement);
 }
 
 function removeCards() {
