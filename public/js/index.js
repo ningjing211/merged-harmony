@@ -925,13 +925,54 @@ function getVideoId(url) {
 
 async function addCards(eventName) {
     // console.log(eventName);
+    const main = document.getElementById("player");
+
+    // 創建 loading 元素
+    const loadingElement = document.createElement("div");
+    loadingElement.id = "loading-animation";
+    loadingElement.innerHTML = `
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    `;
+    main.appendChild(loadingElement);
+
+    // 加入 CSS 樣式（可選）
+    const loadingStyle = document.createElement("style");
+    loadingStyle.innerHTML = `
+        #loading-animation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 18px;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(loadingStyle);
 
     // 如果是手機，移除滑動區域
     if (isMobile) {
         await removeSwipeSections();
     }
-
-    const main = document.getElementById("player");
 
     // 檢查是否已有 .page-event 區域，如果有則先清除其內容
     const existingPageEvent = main.querySelector(".page-event");
@@ -1045,6 +1086,8 @@ async function addCards(eventName) {
         `;
     }
     document.head.appendChild(style);
+    // 移除 loading 動畫
+    main.removeChild(loadingElement);
 }
 
 function removeCards() {
