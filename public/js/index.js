@@ -147,6 +147,8 @@ function removeSwipeSections() {
     setTimeout(() => {
         if (bottomSwipeSection.parentNode) {
             bottomSwipeSection.parentNode.removeChild(bottomSwipeSection);
+        }
+        if (imgElement.parentNode) {
             imgElement.parentNode.removeChild(imgElement);
         }
     }, 500); // 500ms matches the CSS transition duration
