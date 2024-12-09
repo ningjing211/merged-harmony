@@ -7,6 +7,10 @@
   flex-wrap: wrap;
 }
 
+.coverImageContainer {
+  margin: 24px 0;
+}
+
 .imageItem {
   text-align: center;
   margin: 10px;
@@ -114,10 +118,30 @@ img {
 .admin-title {
   display: block;
   width: 100%;
-  padding: 40px;
+  padding: 56px;
   font-size: 22px;
   text-align: center;
-  color: white;
+  color: #212121;
+  background: #f6f6f6;
+}
+
+.group:nth-child(odd) {
+  background-color: #a2af79; /* 奇數元素的背景顏色 */
+}
+
+.group:nth-child(even) {
+  background-color: #e9cca9; /* 偶數元素的背景顏色 */
+}
+.group-name {
+  font-size: 24px;
+  text-align: center;
+  background: #4e4e4e;
+  color: wheat;
+  padding: 40px 40px 40px 40px;
+  border: 1px dotted WHEAT;
+  border-bottom: 0;
+  border-top: 0;
+  margin: 0
 }
 /* loading */
 

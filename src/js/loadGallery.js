@@ -1,8 +1,11 @@
 $(document).ready(function () {
+
     const placeholderPath = 'https://placehold.co/600x400?text=upload'; // placeholder圖片的路徑
     const expectedImageCount = 20; // 每個資料夾預期有20張圖片
 
     function loadGallery() {
+        $('#loading').show();
+
         $.ajax({
             url: '/api/images-order',
             method: 'GET',
@@ -484,6 +487,7 @@ $(document).ready(function () {
                 $videoContainer.append($inputContainer);
     
                 $coverImageContainer.append($videoContainer);
+                $groupDiv.append($groupNameText, $groupNameInput, $editButton, $saveButton);
                 $groupDiv.append($coverImageContainer);
             }
     
@@ -665,10 +669,10 @@ $(document).ready(function () {
                 $imageContainer.append($imgDiv);
             }
     
-            $groupDiv.append($groupNameText, $groupNameInput, $editButton, $saveButton);
             $groupDiv.append($imageContainer);
             $galleryContainer.append($groupDiv);
         });
+        $('#loading').fadeOut();
     }
 
     function updateImageDescription(folderName, fileName, newDescription) {

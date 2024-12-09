@@ -487,6 +487,7 @@ $(document).ready(function () {
                 $videoContainer.append($inputContainer);
     
                 $coverImageContainer.append($videoContainer);
+                $groupDiv.append($groupNameText, $groupNameInput, $editButton, $saveButton);
                 $groupDiv.append($coverImageContainer);
             }
     
@@ -668,7 +669,6 @@ $(document).ready(function () {
                 $imageContainer.append($imgDiv);
             }
     
-            $groupDiv.append($groupNameText, $groupNameInput, $editButton, $saveButton);
             $groupDiv.append($imageContainer);
             $galleryContainer.append($groupDiv);
         });
