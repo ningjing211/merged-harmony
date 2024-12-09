@@ -141,7 +141,6 @@ const detailsImage = await loadDetailsImage();
 function removeSwipeSections() {
     // Add fade-out effect
     bottomSwipeSection.classList.add("hidden");
-    imgElement.classList.add("hidden");
 
     // Wait for the transition to complete before removing from DOM
     setTimeout(() => {
@@ -155,7 +154,7 @@ function removeSwipeSections() {
 function addSwipeSections() {
     // Add to the DOM with the hidden class
     bottomSwipeSection.classList.add("hidden");
-    imgElement.classList.add("hidden");
+
     document.body.appendChild(bottomSwipeSection);
     
 
