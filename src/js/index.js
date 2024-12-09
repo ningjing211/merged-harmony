@@ -164,9 +164,10 @@ function removeSwipeSections() {
 function addSwipeSections() {
     // Add to the DOM with the hidden class
     bottomSwipeSection.classList.add("hidden");
+    imgElement.classList.add("hidden");
 
     document.body.appendChild(bottomSwipeSection);
-    
+    document.body.appendChild(imgElement);
 
 
     // Trigger a reflow to ensure the class is applied, then remove the hidden class
@@ -179,23 +180,40 @@ function addSwipeSections() {
 }
 
     // Create the img element
-    const imgElement = `
-        <img 
-            src="https://conflux-tech.com/wp-content/uploads/2024/12/Asset-6.png" 
-            alt="Scroll Left-Right"
-            class="swipe-section hidden"
-            style="
-            width: 46px;
-            height: auto;
-            object-fit: contain;
-            position: absolute;
-            bottom: 40px;
-            left: 0;
-            right: 0;
-            z-index: 10;
-            margin: 0 auto;"
-        >
-    `;
+    // const imgElement = `
+    //     <img 
+    //         src="https://conflux-tech.com/wp-content/uploads/2024/12/Asset-6.png" 
+    //         alt="Scroll Left-Right"
+    //         class="swipe-section hidden"
+    //         style="
+    //         width: 46px;
+    //         height: auto;
+    //         object-fit: contain;
+    //         position: absolute;
+    //         bottom: 40px;
+    //         left: 0;
+    //         right: 0;
+    //         z-index: 10;
+    //         margin: 0 auto;"
+    //     >
+    // `;
+
+    // Create the img element dynamically
+    const imgElement = document.createElement("img");
+    imgElement.src = "https://conflux-tech.com/wp-content/uploads/2024/12/Asset-6.png";
+    imgElement.alt = "Scroll Left-Right";
+    imgElement.classList.add("swipe-section");
+    imgElement.classList.add("hidden");
+    imgElement.style.width = "46px";
+    imgElement.style.height = "auto";
+    imgElement.style.objectFit = "contain";
+    imgElement.style.position = "absolute";
+    imgElement.style.bottom = "40px";
+    imgElement.style.left = "0";
+    imgElement.style.right = "0";
+    imgElement.style.zIndex = "10";
+    imgElement.style.margin = "0 auto";
+
 
     // Create right swipe section overlay
     const bottomSwipeSection = document.createElement("div");
@@ -212,12 +230,45 @@ function addSwipeSections() {
 if(isMobile) {
    
     document.body.appendChild(bottomSwipeSection);
-    bottomSwipeSection.insertAdjacentHTML("afterend", imgElement);
+    document.body.appendChild(imgElement);
+
 
     let startX = 0;
     let scrollPos = window.scrollY;
 
     [bottomSwipeSection].forEach(section => {
+
+        section.addEventListener("click", (e) => {
+            e.stopPropagation(); // 阻止事件傳播，防止穿透到 WebGL 層
+        });
+
+    section.addEventListener("touchmove", (e) => {
+
+
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
+
+        // 如果水平滑動的距離大於垂直滑動的距離，則執行水平滾動
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            e.preventDefault(); // 阻止垂直滾動
+            window.scrollBy({
+                top: 0,
+                left: -deltaX * 2, // 調整此倍數控制滑動速度
+                behavior: "smooth"
+            });
+            startX = currentX; // 更新起始點位置
+        }
+        });
+
+    section.addEventListener("touchend", () => {
+        // Update scroll position if necessary
+        scrollPos = window.scrollY;
+    });
+    });
+
+    [imgElement].forEach(section => {
 
         section.addEventListener("click", (e) => {
             e.stopPropagation(); // 阻止事件傳播，防止穿透到 WebGL 層
