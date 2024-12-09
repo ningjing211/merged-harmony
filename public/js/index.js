@@ -141,15 +141,21 @@ const detailsImage = await loadDetailsImage();
 function removeSwipeSections() {
     // Add fade-out effect
     bottomSwipeSection.classList.add("hidden");
-    imgElement.classList.add("hidden");
-
+    const element = document.querySelector('img.swipe-section');
+    // 檢查是否選取到元素
+    if (element) {
+        // 為元素添加 hidden class
+        element.classList.add('hidden');
+    } else {
+        console.error('Element not found');
+    }
     // Wait for the transition to complete before removing from DOM
     setTimeout(() => {
         if (bottomSwipeSection.parentNode) {
             bottomSwipeSection.parentNode.removeChild(bottomSwipeSection);
         }
-        if (imgElement.parentNode) {
-            imgElement.parentNode.removeChild(imgElement);
+        if (element.parentNode) {
+            element.parentNode.removeChild(element);
         }
     }, 500); // 500ms matches the CSS transition duration
 }
