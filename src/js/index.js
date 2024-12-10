@@ -895,7 +895,7 @@ async function addCards(eventName) {
 
         // 動態生成 HTML
         let cardsHTML = `
-            <div class="page-event" style="pointer-events: auto; position: relative; z-index: 20;">
+            <div class="page-event">
                 <div class="cover">
                     <div class="heading">${eventName}</div>
         `;
@@ -1273,50 +1273,6 @@ window.addEventListener("keydown", (event) => {
 //         console.error('Error fetching images data:', error);
 //     }
 // }
-
-function renderCards(eventData) {
-    const main = document.getElementById("player");
-
-    // 檢查是否已有 .page-event 區域，如果有則先清除其內容
-    const existingPageEvent = main.querySelector(".page-event");
-    if (existingPageEvent) {
-        main.removeChild(existingPageEvent);
-    }
-
-    let cardsHTML = `
-        <div class="page-event">
-            <div class="cover">
-                <div class="heading">${eventData.title}</div>
-    `;
-
-    // 動態生成圖片與描述
-    eventData.additionalImages.forEach((img, index) => {
-        cardsHTML += `
-            <a id="image-${eventData.folderName}-${index}" class="logo-image">
-                <img src="${img.path}" 
-                     onerror="this.parentElement.style.display='none'; document.getElementById('${eventData.folderName}-${index}-des').style.display='none'">
-            </a>
-            <div id="${eventData.folderName}-${index}-des" class="image-description">
-                ${img["image-description"] || "No description available."}
-            </div>
-        `;
-    });
-
-    cardsHTML += `
-        <footer>
-            <div class="footer-item">Contact us</div>
-            <div class="footer-item">
-                <a target="_blank" href="mailto:barry.aurora.harmony@gmail.com/"> Email: barry.aurora.harmony@gmail.com </a>
-            </div>
-            <div class="footer-item">
-                禾沐股份有限公司 Copyright © 2024 The Harmony, All rights reserved. Powered by Conflux.
-            </div>
-        </footer>
-    `;
-
-    cardsHTML += `</div></div>`;
-    main.insertAdjacentHTML('beforeend', cardsHTML);
-}
 
 // 呼叫 fetchImagesData 並傳入 eventName
 // fetchImagesData("DDD"); // 根據需要替換 "DDD" 為其他活動名稱
