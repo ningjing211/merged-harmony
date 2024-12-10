@@ -186,6 +186,7 @@ if(isMobile) {
     document.body.appendChild(bottomSwipeSection);
 
     let startX = 0;
+    let startY = 0; // 12-10-2024 3小, 裝了safari console才知道這個沒宣告
     let scrollPos = window.scrollY;
 
     [bottomSwipeSection].forEach(section => {
@@ -672,32 +673,49 @@ for (let i = 0; i < 10; i++) {
     groupText.add(newText)
 }
 
-// 在你的初始化或主程式中，新增以下點擊事件處理邏輯：
+let currentState = "initial"; // 定義初始狀態
 
 window.addEventListener("click", (event) => {
+    console.log(`Current State: ${currentState}`); // 印出當前狀態
 
-    handlePlane()
-
-    // 計算滑鼠在 WebGL 畫布中的位置
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    // 設置 Raycaster
-    raycatser.setFromCamera(mouse, camera);
-
-    // 檢查是否有與 Raycaster 相交的物體
-    const intersects = raycatser.intersectObjects(groupPlane.children);
-
-    if (intersects.length > 0) {
-        const clickedObject = intersects[0].object;
-        // console.log('有沒有clickedObject2', clickedObject);
-        
-        // 檢查 userData 是否存在，確保是指定的物體
-        if (clickedObject.userData && clickedObject.userData.name) {
-            const clickedValue = clickedObject.userData.name;
-            // console.log(`Clicked on: ${clickedValue}`);
-            addCards(clickedValue);
+    if (currentState === "initial") {
+        console.log("State: Initial - Executing handlePlane()");
+        handlePlane();
+        currentState = "groupSelection"; // 切換到選擇 group 狀態
+    } else if (currentState === "groupSelection") {
+        handlePlane();
+        console.log("State: Group Selection - Checking for clicked group");
+        // 根據 flag 判斷是否需要跳過以下邏輯
+        if (intersectFlag) {
+            console.log('Intersect flag is true, skipping further execution.');
+            return; // 不執行後續邏輯
         }
+        // 計算滑鼠在 WebGL 畫布中的位置
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        // 設置 Raycaster
+        raycatser.setFromCamera(mouse, camera);
+
+        // 檢查是否有與 Raycaster 相交的物體
+        const intersects = raycatser.intersectObjects(groupPlane.children);
+
+        if (intersects.length > 0) {
+            const clickedObject = intersects[0].object;
+            console.log('show clickedObject', clickedObject);
+            console.log('判斷是否執行clickedObject.userData && clickedObject.userData.name', clickedObject.userData && clickedObject.userData.name)
+            if (clickedObject.userData && clickedObject.userData.name) {
+                const clickedValue = clickedObject.userData.name;
+                console.log(`Clicked on group: ${clickedValue}`);
+                addCards(clickedValue);
+                
+            }
+        } else {
+            console.log("No group selected.");
+        }
+    } else if (currentState === "cardsDisplayed") {
+        console.log("State: Cards Displayed - Additional behavior can be added here");
+        // 在此處添加針對 cardsDisplayed 狀態的邏輯
     }
 });
 
@@ -855,15 +873,29 @@ async function preloadImages(imagePaths) {
     );
 }
 
+let executionCount = 0; // 計數器變數，初始化為 0
+
 async function addCards(eventName) {
+    console.log('印出event name', eventName);
+    const main = document.querySelector(".player")
+    console.log('進入addCards, 印出player:main---', main);
+    currentState = "cardsDisplayed"; // 切換到顯示 cards 狀態
+    console.log('Top - in the addCards, currentStat:', currentState)
+    executionCount++; // 每次執行時遞增
+    const now = new Date(); // 獲取當前時間
+    const timestamp = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`; // 格式化時間
+    console.log(`頭- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+
     // 如果是手機，移除滑動區域
     if (isMobile) {
         await removeSwipeSections();
     }
 
-    const main = document.getElementById("player");
+    
 
     // 檢查是否已有 .page-event 區域，如果有則先清除其內容
+    console.log(`中1- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+
     const existingPageEvent = main.querySelector(".page-event");
     if (existingPageEvent) {
         main.removeChild(existingPageEvent);
@@ -875,6 +907,8 @@ async function addCards(eventName) {
         existingFooter.remove();
     }
 
+    console.log(`中2- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+
     try {
         // 從後端獲取 JSON 資料
         const response = await fetch('/api/images-order');
@@ -884,6 +918,7 @@ async function addCards(eventName) {
 
         // 找到對應的活動資料
         const eventData = imagesData.find((item) => item.folderName === eventName);
+        console.log('Fetched Event Data:', eventData);
         if (!eventData) {
             console.error(`Event "${eventName}" not found in JSON data.`);
             return;
@@ -892,6 +927,7 @@ async function addCards(eventName) {
         // 預載圖片
         const imagePaths = eventData.additionalImages.map((img) => img.path);
         await preloadImages(imagePaths);
+        console.log(`中3- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
         // 動態生成 HTML
         let cardsHTML = `
@@ -899,6 +935,7 @@ async function addCards(eventName) {
                 <div class="cover">
                     <div class="heading">${eventName}</div>
         `;
+        console.log(`中4- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
         // 遍歷 JSON 數據，生成對應的圖片和描述
         eventData.additionalImages.forEach((img, index) => {
@@ -912,6 +949,7 @@ async function addCards(eventName) {
                 </div>
             `;
         });
+        console.log(`中5- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
         // 添加 Footer
         cardsHTML += `
@@ -927,9 +965,14 @@ async function addCards(eventName) {
         `;
 
         cardsHTML += `</div>`;
+        console.log('Generated cardsHTML:', cardsHTML);
+        console.log('Updated DOM:-11111', main.innerHTML);
+
         main.insertAdjacentHTML('beforeend', cardsHTML);
+        console.log('Updated DOM:-22222', main.innerHTML);
 
         await initializeElements(eventName); // 確保初始化完成
+        
     } catch (error) {
         console.error("Error loading images data:", error);
     }
@@ -973,11 +1016,13 @@ async function addCards(eventName) {
         `;
     }
     document.head.appendChild(style);
+    console.log(`尾- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 }
 
 function removeCards() {
     // console.log('Executing removeCards');
-    const main = document.getElementById("player");
+    const main = document.querySelector(".player")
+
     const cardSections = main.querySelectorAll('.main-cards');
     
     // console.log(cardSections); // Ensure that cards are being selected
@@ -1029,7 +1074,22 @@ window.addEventListener("touchstart", (event) => {
     event.target.dispatchEvent(simulatedClickEvent);
 });
 
+let intersectFlag = false; // 全局變數，作為旗標控制邏輯
+
+
 const handlePlane = () => {
+    console.log('111', currentIntersect)
+    // 如果 currentIntersect 為 null，直接退出函式
+    if (!currentIntersect) {
+        console.log('currentIntersect is null, exiting handlePlane.');
+        intersectFlag = true; // 設置旗標為 true，表示不需要繼續執行
+        return; // 終止函式執行
+    }
+
+    intersectFlag = false; // 設置旗標為 true，表示不需要繼續執行
+
+    console.log('222', videoLook)
+    console.log('333', isLoading)
     if (currentIntersect && videoLook === false && isLoading) {
         for (let i = 0; i < groupPlane.children.length; i++) {
             if (groupPlane.children[i] === currentIntersect.object) {
@@ -1062,7 +1122,7 @@ const handlePlane = () => {
 
                 const videoId = getVideoId(detailsImage[i].url);
                 playerSource.src = "https://www.youtube.com/embed/" + videoId
-                
+                console.log('有沒有執行到setTimeOut之前，opacity and visible');
                 setTimeout(() => {
                     player.style.visibility = "visible"
 
@@ -1079,6 +1139,9 @@ const handlePlane = () => {
 }
 
 playerClose.addEventListener("click", () => {
+    console.log('進來playerClose, addCards執行過後, 準備關掉了')
+    currentState = "groupSelection"; // 切換到選擇 group 狀態
+    console.log('要關掉addCards, 改變currentStata:', currentState);
     event.stopPropagation();  // 防止點擊事件冒泡到 WebGL 場景
     playerSource.src = ""
     music.play()
@@ -1092,6 +1155,7 @@ playerClose.addEventListener("click", () => {
     if (player.style) {
         player.style.visibility = "hidden";
     }
+    // 報錯 為何 12 - 10 - 2024
     gsap.to(groupPlane.children[planeClickedIndex].position, 0.5, {
         x: lastPosition.px,
         y: lastPosition.py,
@@ -1161,13 +1225,15 @@ const init = () => {
 
     // Upadate raycaster
     if(!("ontouchstart" in window)) raycatser.setFromCamera(mouse, camera)
-    const intersects = raycatser.intersectObjects(groupPlane.children)
+    const intersects = raycatser.intersectObjects(groupPlane.children, true);
 
     // black and white to colo animation with raycaster
     if (isLoading) {
         if (intersects.length === 1) {
             if (currentIntersect === null) {
                 currentIntersect = intersects[0]
+                console.log('groupPlane.children', groupPlane.children, '這裡面有物件嗎')
+                console.log('這裡有被初始化嗎？------------------------')
             } else {
                 for (let i = 0; i < groupPlane.children.length; i++) {
                     if (groupPlane.children[i] === currentIntersect.object) {
