@@ -22,6 +22,7 @@ const playerSource = document.querySelector(".player-source")
 const counterLoading = document.querySelector(".counterLoading")
 const header = document.querySelector("header")
 const h1 = document.querySelector("h1")
+const li = document.querySelector(".the-harmony-logo")
 const footer = document.querySelector("footer")
 const loading = document.querySelector(".loading")
 const started = document.querySelector(".started")
@@ -291,8 +292,8 @@ const loadingManager = new THREE.LoadingManager(
     () => {
         window.setTimeout(() => {
             gsap.to(header, 0.5, {
-                top: 10,
-                left: 10,
+                top: 0,
+                left: 60,
                 transform: "translate(0, 0)",
                 ease: Power1.easeIn
             })
@@ -302,7 +303,17 @@ const loadingManager = new THREE.LoadingManager(
                 top: 10,
                 left: 10,
                 transform: "translate(0, 0)",
-                width: 200,
+                width: 150,
+                letterSpacing: "2px",
+                ease: Power1.easeIn
+            })
+
+            gsap.to(li, 0.5, {
+                fontSize: 22,
+                top: 10,
+                left: 10,
+                transform: "translate(0, 0)",
+                width: 166,
                 ease: Power1.easeIn
             })
 
@@ -336,7 +347,7 @@ const loadingManager = new THREE.LoadingManager(
         const progressRatio = itemsLoaded / itemsTotal
 
         counterLoading.innerHTML = `${(progressRatio * 100).toFixed(0)}%`
-        header.style.width = `${(progressRatio * 550).toFixed(0)}px`
+        header.style.width = `${(progressRatio * 226).toFixed(0)}px`
     }
 )
 
@@ -643,7 +654,7 @@ for (let i = 0; i < 10; i++) {
 
     
     if (isMobile) {
-        plane.scale.set(1.3, 1.3, 1.3); // Increase to make the image larger, decrease for smaller
+        plane.scale.set(1.5, 1.5, 1.5); // Increase to make the image larger, decrease for smaller
         plane.position.y = i - 10
     } else {
         plane.position.y = i - 14.2
