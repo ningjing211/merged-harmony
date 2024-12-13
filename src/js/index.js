@@ -287,6 +287,23 @@ respiration.volume = 0.01
 // Loaders
 //-------------------------------------------------------------------------------------------------------------------
 
+let simulatedProgress = 0;
+
+// 模擬進度條的函數
+const simulateLoading = () => {
+    if (simulatedProgress < 100) {
+        simulatedProgress += 0.8; // 調整這裡的值來控制速度（例如 0.1 是更慢的速度）
+        counterLoading.innerHTML = `${simulatedProgress.toFixed(0)}%`;
+        header.style.width = `${(simulatedProgress * 226 / 100).toFixed(0)}px`;
+
+        // 繼續調用模擬進度條
+        setTimeout(simulateLoading, 50); // 調整這裡的時間間隔（例如 100 毫秒是更慢的速度）
+    }
+};
+
+// 開始模擬進度條
+simulateLoading();
+
 const loadingManager = new THREE.LoadingManager(
     // Loaded
     () => {
@@ -343,11 +360,18 @@ const loadingManager = new THREE.LoadingManager(
             startedBtn.addEventListener("click", () => continueAnimation())
         }, 50)
     },
+    // Loaded
+    () => {
+        simulatedProgress = 100; // 加載完成後，直接將進度設置為 100
+        counterLoading.innerHTML = `100%`;
+        header.style.width = `226px`;
+        // 可以在這裡觸發其他動畫或邏輯
+    },
     (itemUrl, itemsLoaded, itemsTotal) => {
-        const progressRatio = itemsLoaded / itemsTotal
-
-        counterLoading.innerHTML = `${(progressRatio * 100).toFixed(0)}%`
-        header.style.width = `${(progressRatio * 226).toFixed(0)}px`
+        // 真實進度條邏輯，將模擬與真實結合
+        const progressRatio = Math.max(simulatedProgress, itemsLoaded / itemsTotal * 100);
+        counterLoading.innerHTML = `${progressRatio.toFixed(0)}%`;
+        header.style.width = `${(progressRatio * 226 / 100).toFixed(0)}px`;
     }
 )
 
