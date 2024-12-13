@@ -293,7 +293,7 @@ const loadingManager = new THREE.LoadingManager(
         window.setTimeout(() => {
             gsap.to(header, 0.5, {
                 top: 0,
-                left: 60,
+                left: 40,
                 transform: "translate(0, 0)",
                 ease: Power1.easeIn
             })
