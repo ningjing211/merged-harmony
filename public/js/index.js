@@ -47,6 +47,40 @@ const localLinks = [].slice.call(document.querySelectorAll('a')).filter((a) => /
 
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
+// 全域變數儲存 JSON 資料，避免重複請求
+let cachedImagesOrder = null;
+
+// 單次 fetch JSON 資料，使用緩存
+async function getImagesOrder() {
+    if (cachedImagesOrder) {
+        return cachedImagesOrder; // 使用已緩存的資料
+    }
+    try {
+        const response = await fetch('/api/images-order');
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json');
+        cachedImagesOrder = await response.json();
+        return cachedImagesOrder;
+    } catch (error) {
+        console.error("Error fetching imagesOrder:", error);
+        return []; // 錯誤時返回空陣列
+    }
+}
+
+async function getImagesOrderReverse() {
+    if (cachedImagesOrder) {
+        return cachedImagesOrder; // 使用已緩存的資料
+    }
+    try {
+        const response = await fetch('/api/images-order');
+        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json');
+        cachedImagesOrder =(await response.json()).reverse();
+        return cachedImagesOrder;
+    } catch (error) {
+        console.error("Error fetching imagesOrder:", error);
+        return []; // 錯誤時返回空陣列
+    }
+}
+
 localLinks.forEach((link) => {
   link.addEventListener('click', function(e) {
     e.preventDefault();
@@ -63,10 +97,10 @@ localLinks.forEach((link) => {
 async function loadDetailsImage() {
     try {
         // Fetch JSON file containing image paths
-        const response = await fetch('/api/images-order');
-        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json');
 
-        const data = (await response.json()).reverse();
+        let data = await getImagesOrderReverse();
+        
+        console.log('印出拿到的data, 做比較', data)
   
         // console.log("Fetched JSON data for detailsImage:", data);
 
@@ -84,9 +118,34 @@ async function loadDetailsImage() {
     }
 };
 
-
-
 const detailsImage = await loadDetailsImage();
+
+async function loadDetailsImageForMobile() {
+    try {
+        // Fetch JSON file containing image paths
+
+        const data = await getImagesOrder();
+  
+        // console.log("Fetched JSON data for detailsImage:", data);
+
+        const loadedDetailsImageForMobile = data.map(group => ({
+            url: group.video?.url || 'URL not available', // 安全提取 video.url
+            name: group.folderName || 'Name not available' // 安全提取 folderName
+        }));
+
+        // console.log('loadedDetailsImage', loadedDetailsImage);
+        // console.log("images-inside:", loadedDetailsImage); // 確保這裡是資料處理完成後
+        return loadedDetailsImageForMobile; // 回傳已完成的 images 陣列
+    } catch (error) {
+        console.error("Error loading images:", error);
+        return []; // 如果發生錯誤，回傳空陣列
+    }
+};
+
+const detailsImageForMobile = await loadDetailsImageForMobile();
+
+
+
 
 // console.log('detailsImage-outside:', detailsImage); // 確保 images 包含正確的值
 
@@ -184,49 +243,49 @@ bottomSwipeSection.style.backgroundSize = "16%";
 
 
 if(isMobile) {
-    document.body.appendChild(bottomSwipeSection);
+    // document.body.appendChild(bottomSwipeSection);
 
-    let startX = 0;
-    let startY = 0; // 12-10-2024 3小, 裝了safari console才知道這個沒宣告
-    let scrollPos = window.scrollY;
+    // let startX = 0;
+    // let startY = 0; // 12-10-2024 3小, 裝了safari console才知道這個沒宣告
+    // let scrollPos = window.scrollY;
 
-    [bottomSwipeSection].forEach(section => {
+    // [bottomSwipeSection].forEach(section => {
 
-        section.addEventListener("click", (e) => {
-            e.stopPropagation(); // 阻止事件傳播，防止穿透到 WebGL 層
-        });
+    //     section.addEventListener("click", (e) => {
+    //         e.stopPropagation(); // 阻止事件傳播，防止穿透到 WebGL 層
+    //     });
 
-    section.addEventListener("touchmove", (e) => {
+    // section.addEventListener("touchmove", (e) => {
 
 
-        const currentX = e.touches[0].clientX;
-        const currentY = e.touches[0].clientY;
-        const deltaX = currentX - startX;
-        const deltaY = currentY - startY;
+    //     const currentX = e.touches[0].clientX;
+    //     const currentY = e.touches[0].clientY;
+    //     const deltaX = currentX - startX;
+    //     const deltaY = currentY - startY;
 
-        // 如果水平滑動的距離大於垂直滑動的距離，則執行水平滾動
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            e.preventDefault(); // 阻止垂直滾動
-            window.scrollBy({
-                top: 0,
-                left: -deltaX * 2, // 調整此倍數控制滑動速度
-                behavior: "smooth"
-            });
-            startX = currentX; // 更新起始點位置
-        }
-        });
+    //     // 如果水平滑動的距離大於垂直滑動的距離，則執行水平滾動
+    //     if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    //         e.preventDefault(); // 阻止垂直滾動
+    //         window.scrollBy({
+    //             top: 0,
+    //             left: -deltaX * 2, // 調整此倍數控制滑動速度
+    //             behavior: "smooth"
+    //         });
+    //         startX = currentX; // 更新起始點位置
+    //     }
+    //     });
 
-    section.addEventListener("touchend", () => {
-        // Update scroll position if necessary
-        scrollPos = window.scrollY;
-    });
-    });
+    // section.addEventListener("touchend", () => {
+    //     // Update scroll position if necessary
+    //     scrollPos = window.scrollY;
+    // });
+    // });
 
-    window.addEventListener("resize", () => {
-        // Adjust size and position if needed
-        bottomSwipeSection.style.width = "50%";
-        bottomSwipeSection.style.height = "100%";
-    });
+    // window.addEventListener("resize", () => {
+    //     // Adjust size and position if needed
+    //     bottomSwipeSection.style.width = "50%";
+    //     bottomSwipeSection.style.height = "100%";
+    // });
     
 }
 // Debug
@@ -450,12 +509,8 @@ const textureLoader = new THREE.TextureLoader(loadingManager);
 
 async function loadImages() {
     try {
-        // Fetch JSON file containing image paths
-        const response = await fetch('/api/images-order');
-        if (!response.ok) throw new Error('Failed to fetch imagesOrder.json');
 
-        const data = (await response.json()).reverse();
-
+        const data = await getImagesOrderReverse();
         // console.log("Fetched data: loadImages", data);
 
         const loadedImages = [];
@@ -479,6 +534,35 @@ async function loadImages() {
 
 
 const images = await loadImages();
+
+async function loadImagesForDiv() {
+    try {
+
+        const data = await getImagesOrder();
+
+        // console.log("Fetched data: loadImages", data);
+
+        const loadedImages = [];
+
+        // 非同步處理完成後更新 loadedImages 陣列
+        data.forEach((group) => {
+            // console.log('group.path', group.path);
+            loadedImages.push(group.path);
+        });
+
+        // console.log('loadedImages----', loadedImages);
+
+        // console.log("images-inside:", loadedImages); // 確保這裡是資料處理完成後
+        return loadedImages; // 回傳已完成的 images 陣列
+    } catch (error) {
+        console.error("Error loading images:", error);
+        return []; // 如果發生錯誤，回傳空陣列
+    }
+};
+
+
+
+const imagesForDiv = await loadImagesForDiv();
 
 // console.log('images-outside:', images); // 確保 images 包含正確的值
 
@@ -545,36 +629,49 @@ gltfLoader.load(
 
         // Event Animation
         if ("ontouchstart" in window) {
-            window.addEventListener('touchstart', (e) => {
-                startTouch = e.touches[0].clientY; // 記錄初始觸控位置（垂直方向）
-                startTouchX = e.touches[0].clientX; // 記錄初始觸控位置（水平方向）
-            }, false);
+            // window.addEventListener('touchstart', (e) => {
+            //     e.preventDefault();
+            //     startTouch = e.touches[0].clientY; // 記錄初始觸控位置（垂直方向）
+            //     startTouchX = e.touches[0].clientX; // 記錄初始觸控位置（水平方向）
 
-            window.addEventListener('touchmove', (e) => {
-                const currentTouchY = e.touches[0].clientY;
-                const currentTouchX = e.touches[0].clientX;
+            //         // 創建一個新的 click 事件
+            //         const simulatedClickEvent = new MouseEvent("click", {
+            //             bubbles: true,
+            //             cancelable: true,
+            //             view: window,
+            //             clientX: e.touches[0].clientX,
+            //             clientY: e.touches[0].clientY
+            //         });
 
-                let touchDeltaY = startTouch - currentTouchY; // 計算垂直方向移動差值
-                let touchDeltaX = startTouchX - currentTouchX; // 計算水平方向移動差值
-                startTouch = currentTouchY; // 更新起始點位置（垂直）
-                startTouchX = currentTouchX; // 更新起始點位置（水平方向）
+            //         // 將 click 事件派發到觸控點的目標元素
+            //         e.target.dispatchEvent(simulatedClickEvent);
+            // }, false);
 
-                // 調整觸控差值縮放因子
-                const scaledDeltaY = touchDeltaY * 0.1;
-                let scaledDeltaX = touchDeltaX * 0.3; // 增大左右滑動效果，統一增大滾動距離
+            // window.addEventListener('touchmove', (e) => {
+            //     const currentTouchY = e.touches[0].clientY;
+            //     const currentTouchX = e.touches[0].clientX;
 
-                // 處理垂直方向的滾動
-                if (touchDeltaY > 0) {
-                    animationScroll(e, true, scaledDeltaY, "up");  // 向上滾動
-                } else {
-                    animationScroll(e, true, scaledDeltaY, "down"); // 向下滾動
-                }
+            //     let touchDeltaY = startTouch - currentTouchY; // 計算垂直方向移動差值
+            //     let touchDeltaX = startTouchX - currentTouchX; // 計算水平方向移動差值
+            //     startTouch = currentTouchY; // 更新起始點位置（垂直）
+            //     startTouchX = currentTouchX; // 更新起始點位置（水平方向）
 
-                // 增加左右滑動的滾動幅度
-                if (touchDeltaX !== 0) {
-                    animationScroll(e, true, scaledDeltaX, touchDeltaX < 0 ? "right" : "left");
-                }
-            }, false);
+            //     // 調整觸控差值縮放因子
+            //     const scaledDeltaY = touchDeltaY * 0.1;
+            //     let scaledDeltaX = touchDeltaX * 0.3; // 增大左右滑動效果，統一增大滾動距離
+
+            //     // 處理垂直方向的滾動
+            //     if (touchDeltaY > 0) {
+            //         animationScroll(e, true, scaledDeltaY, "up");  // 向上滾動
+            //     } else {
+            //         animationScroll(e, true, scaledDeltaY, "down"); // 向下滾動
+            //     }
+
+            //     // 增加左右滑動的滾動幅度
+            //     if (touchDeltaX !== 0) {
+            //         animationScroll(e, true, scaledDeltaX, touchDeltaX < 0 ? "right" : "left");
+            //     }
+            // }, false);
         } else {
             window.addEventListener("wheel", (e) => animationScroll(e), false);
         }
@@ -596,9 +693,9 @@ debugObject.envMapIntensity = 5
 const camera = new THREE.PerspectiveCamera(83, sizesCanvas.width / sizesCanvas.height, 0.1, 100)
 
 if (isMobile) {
-    camera.position.x = 1.2
-    camera.position.y = 1.2
-    camera.position.z = - 3
+    // camera.position.x = 1.2
+    // camera.position.y = 1.2
+    // camera.position.z = - 3
 } else {
     camera.position.x = 0
     camera.position.y = 0
@@ -678,8 +775,8 @@ for (let i = 0; i < 10; i++) {
 
     
     if (isMobile) {
-        plane.scale.set(1.5, 1.5, 1.5); // Increase to make the image larger, decrease for smaller
-        plane.position.y = i - 10
+        // plane.scale.set(1.5, 1.5, 1.5); // Increase to make the image larger, decrease for smaller
+        // plane.position.y = i - 10
     } else {
         plane.position.y = i - 14.2
     }
@@ -740,7 +837,9 @@ window.addEventListener("click", (event) => {
             console.log('show clickedObject', clickedObject);
             console.log('判斷是否執行clickedObject.userData && clickedObject.userData.name', clickedObject.userData && clickedObject.userData.name)
             if (clickedObject.userData && clickedObject.userData.name) {
+                
                 const clickedValue = clickedObject.userData.name;
+                console.log('clickedValueTest', clickedValue);
                 console.log(`Clicked on group: ${clickedValue}`);
                 addCards(clickedValue);
                 
@@ -752,7 +851,256 @@ window.addEventListener("click", (event) => {
         console.log("State: Cards Displayed - Additional behavior can be added here");
         // 在此處添加針對 cardsDisplayed 狀態的邏輯
     }
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    async function fetchImagesOrder(eventName) {
+        try {
+   
+            const imagesData = await getImagesOrder();
+            console.log('執行過了')
+    
+            // 找到對應的活動資料
+            const eventData = imagesData.find((item) => item.folderName === eventName);
+            console.log('Fetched Event Data:', eventData);
+    
+            if (!eventData) throw new Error(`Event "${eventName}" not found in JSON data.`);
+    
+            return eventData;
+        } catch (error) {
+            console.error("Error fetching imagesOrder:", error);
+            return null; // 返回 null 表示出錯
+        }
+    }
+
+    if (isMobile) {
+        document.documentElement.style.overflow = "visible";
+        document.body.style.overflow = "visible";
+
+        document.documentElement.style.background = "#232323";
+        document.body.style.background = "#232323";
+
+        const main = document.querySelector("main");
+        const canvas = document.querySelector(".main-webgl");
+        if (canvas) canvas.remove();
+
+        // 使用超連結方式，將 data-name 傳入
+        const newWrap = document.createElement("div");
+        newWrap.className = "new-mobile-wrap";
+
+        const reversedDetailsImage = [...detailsImageForMobile].reverse();
+        const reversedImagesForDiv = [...imagesForDiv].reverse();
+
+        // 再生成 HTML
+        newWrap.innerHTML = reversedDetailsImage.map((detail, index) => `
+            <a class="detail-box" 
+            href="#" 
+            data-name="${detail.name}" 
+            data-index="${index}">
+                <h2>${detail.name}</h2>
+                <img src="${reversedImagesForDiv[index]}" alt="${detail.name}" class="detail-image" />
+            </a>
+        `).join("");
+
+        main.appendChild(newWrap);
+
+        // 主邏輯：動態設置 href
+        document.querySelectorAll(".detail-box").forEach((link) => {
+            const eventName = link.dataset.name; // 從 data-name 取得事件名稱
+
+            link.addEventListener("click", async (e) => {
+                e.preventDefault(); // 阻止超連結的預設跳轉
+
+                const eventData = await fetchImagesOrder(eventName); // 先獲取 eventData
+                if (eventData) {
+                    // 動態生成 Blob URL
+                    const mobilePageURL = createMobilePageURL(eventName, eventData);
+
+                    // 將生成的 URL 設置為 href 並跳轉
+                    window.location.href = mobilePageURL;
+                }
+            });
+        });
+        
+        // 動態添加 RWD CSS
+        const style = document.createElement("style");
+        style.innerHTML = `
+            /* 新增響應式彈性布局 */
+            .new-mobile-wrap {
+                display: flex;
+                flex-wrap: wrap; /* 內容自動換行 */
+                justify-content: center; /* 水平置中 */
+                gap: 15px; /* 子元素間隔 */
+                padding: 10px;
+                background-color: #232323;
+                margin-top: 140px;
+            }
+
+            .detail-box {
+                flex: 1 1 calc(50% - 20px); /* 每個 box 初始佔 50%，隨寬度自動調整 */
+                max-width: calc(50% - 20px);
+                border: 1px solid #ddd;
+                padding: 15px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                margin-bottom: 36px;
+            }
+
+            .detail-box:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+            }
+
+            .detail-box h2 {
+                font-size: 16px;
+                margin: 0 0 8px;
+                color: #333;
+                text-align: center;
+                padding: 12px;
+            }
+
+            .detail-box a {
+                color: #007bff;
+                text-decoration: none;
+                word-break: break-all; /* 長連結自動換行 */
+            }
+
+            .detail-box a:hover {
+                text-decoration: underline;
+            }
+
+            /* 響應式設計 */
+            @media (max-width: 768px) {
+                .detail-box {
+                    flex: 1 1 calc(80% - 20px); /* 小螢幕時，每個 box 佔 100% 寬度 */
+                    max-width: calc(80% - 20px);
+                }
+            }
+
+            @media (min-width: 1024px) {
+                .new-mobile-wrap {
+                    max-width: 1200px;
+                    margin: 0 auto; /* 大螢幕置中 */
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    } else {
+        console.log("WebGL rendering...");
+        // 原本 WebGL 邏輯
+    }
+
 });
+// Function: 動態生成 Blob URL
+function createMobilePageURL(eventName, eventData) {
+    const pageContent = generateMobilePage(eventName, eventData);
+
+    // 轉換成 Blob URL
+    const blob = new Blob([pageContent], { type: "text/html" });
+    return URL.createObjectURL(blob);
+}
+
+/* 測試這個版本要喚回 <img src="http://localhost:3000${img.path}" /> */
+
+function generateImageCards(eventData) {
+    return eventData.additionalImages.map((img, index) => `
+        <a id="image-${eventData.folderName}-${index}" class="logo-image">
+            <img src="${img.path}" />
+        </a>
+        <div id="${eventData.folderName}-${index}-des" class="image-description">
+            ${img.imageDescription || "No description available."}
+        </div>
+    `).join("");
+}
+
+// Function: 遍歷 JSON 數據並生成影片區塊
+function generateVideoCards(eventData) {
+    console.log(eventData, 'video');
+    if (!eventData.video || !eventData.video.url) return ""; // 檢查 video.url 是否存在
+
+    const videoId = getVideoId(eventData.video.url);
+    console.log('videoId', videoId);
+    return `
+        <div class="video-container">
+            <iframe
+                class="player-source"
+                style="width: 100%; height: auto; min-height:280px;"
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                src="https://www.youtube.com/embed/${videoId}">
+            </iframe>
+        </div>
+    `;
+}
+
+// Function: 生成 mobile-page.html 的內容
+function generateMobilePage(eventName, eventData) {
+    const imageCardsHTML = generateImageCards(eventData); // 使用剛剛的函數
+    const videoCardsHTML = generateVideoCards(eventData); // 影片區塊
+
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${eventName}</title>
+        <link rel="stylesheet" href="styles/style.css">
+        <style>
+            html { background: #000000; }
+            body { background: #000000; font-family: 'Noto Sans TC'; sans-serif; margin: 0; padding: 0; }
+            .page-event { padding-top: 30px; text-align: center; margin: 20px; }
+            .cover .heading { font-size: 28px; font-weight: bold; margin-bottom: 20px; }
+            .heading { color: #f0f0f0; padding: 30px 10px 20px 10px; }
+            .logo-image img { width: 100%; max-width: 400px; margin: 10px auto; display: block; }
+            .image-description { 
+                color: #dedede;
+                margin: 10px 0;
+                background: #313131;
+                padding: 30px;
+                line-height: 26px;
+            }
+            footer { 
+                text-align: center;
+                background-color: #bcbcbcf0;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                min-height: 130px;
+                display: flex;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <div class="page-event">
+                <div class="cover">
+                    <div class="heading">${eventName}</div>
+                </div>
+
+                <!-- 影片區塊 -->
+                ${videoCardsHTML}
+
+                <!-- 動態插入圖片和描述 -->
+                ${imageCardsHTML}
+
+                <footer>
+                    <div>Contact us</div>
+                    <div>
+                        <a target="_blank" href="mailto:barry.aurora.harmony@gmail.com">Email: barry.aurora.harmony@gmail.com</a>
+                    </div>
+                    <div>禾沐股份有限公司 &copy; 2024 The Harmony</div>
+                </footer>
+            </div>
+        </main>
+    </body>
+    </html>
+    `;
+}
 
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -830,7 +1178,7 @@ const animationScroll = (e, touchEvent, value, downOrUp) => {
 
     if (touchEvent && isMobile) {
         // 如果是手機並且是觸控事件，直接使用傳入的值
-        deltaY = value;
+        // deltaY = value;
     } else if (!isMobile) {
         // 非手機裝置處理滑鼠滾輪和鍵盤事件
         const scrollStepKeyboard = 20;  // 鍵盤觸發時的滾動幅度
@@ -923,7 +1271,7 @@ async function addCards(eventName) {
 
     // 如果是手機，移除滑動區域
     if (isMobile) {
-        await removeSwipeSections();
+        // await removeSwipeSections();
     }
 
     
@@ -946,10 +1294,8 @@ async function addCards(eventName) {
 
     try {
         // 從後端獲取 JSON 資料
-        const response = await fetch('/api/images-order');
-        if (!response.ok) throw new Error('Failed to fetch JSON data.');
 
-        const imagesData = (await response.json()).reverse();
+        const imagesData = await getImagesOrderReverse();
 
         // 找到對應的活動資料
         const eventData = imagesData.find((item) => item.folderName === eventName);
@@ -1017,22 +1363,22 @@ async function addCards(eventName) {
     style.id = 'dynamic-style';
 
     if (isMobile) {
-        style.innerHTML = `
-            .player {
-                overflow-y: scroll !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-            }
-            .player-source {
-                position: relative !important;
-                top: 80px !important;
-                left: auto !important;
-                right: auto !important;
-                transform: none !important;
-                min-height: 260px !important;
-            }
-        `;
+        // style.innerHTML = `
+        //     .player {
+        //         overflow-y: scroll !important;
+        //         display: flex !important;
+        //         flex-direction: column !important;
+        //         align-items: center !important;
+        //     }
+        //     .player-source {
+        //         position: relative !important;
+        //         top: 80px !important;
+        //         left: auto !important;
+        //         right: auto !important;
+        //         transform: none !important;
+        //         min-height: 260px !important;
+        //     }
+        // `;
     } else {
         style.innerHTML = `
             .player {
@@ -1092,22 +1438,22 @@ function removeCards() {
 // })
 
 // 新增 touchstart 事件來支援手機點擊
-window.addEventListener("touchstart", (event) => {
-    // 防止觸控的默認行為
-    event.preventDefault();
+// window.addEventListener("touchstart", (event) => {
+//     // 防止觸控的默認行為
+//     event.preventDefault();
 
-    // 創建一個新的 click 事件
-    const simulatedClickEvent = new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-        clientX: event.touches[0].clientX,
-        clientY: event.touches[0].clientY
-    });
+//     // 創建一個新的 click 事件
+//     const simulatedClickEvent = new MouseEvent("click", {
+//         bubbles: true,
+//         cancelable: true,
+//         view: window,
+//         clientX: event.touches[0].clientX,
+//         clientY: event.touches[0].clientY
+//     });
 
-    // 將 click 事件派發到觸控點的目標元素
-    event.target.dispatchEvent(simulatedClickEvent);
-});
+//     // 將 click 事件派發到觸控點的目標元素
+//     event.target.dispatchEvent(simulatedClickEvent);
+// });
 
 let intersectFlag = false; // 全局變數，作為旗標控制邏輯
 
@@ -1210,7 +1556,7 @@ playerClose.addEventListener("click", () => {
     setTimeout(() => {
         videoLook = false
         if(isMobile) {
-        addSwipeSections();  // Re-add swipe sections after closing the player
+        // addSwipeSections();  // Re-add swipe sections after closing the player
         }
     }, 300);
 
