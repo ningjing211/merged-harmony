@@ -74,7 +74,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(galleryData),
             success: function (response) {
-                alert('照片格子已成功創建，請繼續上傳圖片檔案！');
+                alert('照片已成功創建，請繼續上傳圖片檔案！');
                 
                 function displayGallery(data) {
                     const $galleryContainer = $('#galleryContainer');
@@ -209,7 +209,7 @@ $(document).ready(function () {
                                     contentType: 'application/json',
                                     data: JSON.stringify(updatedGalleryData),
                                     success: function () {
-                                        alert('數張照片格子已成功創建，請繼續上傳圖片檔案!');
+                                        alert('數張照片格數已成功創建，請繼續上傳圖片檔案!');
                                     },
                                     error: function (error) {
                                         console.error('Failed to update images order:', error);
