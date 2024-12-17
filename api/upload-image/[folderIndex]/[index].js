@@ -89,14 +89,14 @@ cloudinary.config({
                     if (image) {
                         console.log('上傳成功走這條路');
                         console.log('image-index222', image.index);
-                        image.path = `/uploads/${folderName}/${imageFileName}`; // 使用 Cloudinary 的 secure_url
+                        image.path = result.secure_url; // 使用 Cloudinary 的 secure_url
                         image.name = imageFileName;
                     } else {
                         console.log('上傳不成功???');
                         console.log('image-index333', image.index);
                         group.additionalImages.push({ 
                             name: imageFileName, 
-                            path: `/uploads/${folderName}/${imageFileName}`, 
+                            path: result.secure_url, 
                             imageDescription: 'what happened?' 
                         });
                     }

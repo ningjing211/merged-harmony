@@ -63,7 +63,7 @@ module.exports = async function handler(req, res) {
         
         group.additionalImages.push({
             name: `${newFileName}.jpg`,
-            path: `/uploads/${folderName}/${newFileName}.jpg`,
+            path: result.secure_url,
             index: index,
             imageDescription: 'type your words'
         });
