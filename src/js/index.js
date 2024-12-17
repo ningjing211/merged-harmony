@@ -100,7 +100,7 @@ async function loadDetailsImage() {
 
         let data = await getImagesOrderReverse();
         
-        console.log('印出拿到的data, 做比較', data)
+        // console.log('印出拿到的data, 做比較', data)
   
         // console.log("Fetched JSON data for detailsImage:", data);
 
@@ -466,8 +466,9 @@ const continueAnimation = () => {
     });
 
     const mainWebGL = document.querySelector('.main-webgl');
-    mainWebGL.classList.add("openList"); // 淡出 main-webgl
-
+    if (mainWebGL) {
+        mainWebGL.classList.add("openList"); // 淡出 main-webgl
+    }
 
 
     }, 250);
@@ -808,18 +809,18 @@ for (let i = 0; i < 10; i++) {
 let currentState = "initial"; // 定義初始狀態
 
 window.addEventListener("click", (event) => {
-    console.log(`Current State: ${currentState}`); // 印出當前狀態
+    // console.log(`Current State: ${currentState}`); // 印出當前狀態
 
     if (currentState === "initial") {
-        console.log("State: Initial - Executing handlePlane()");
+        // console.log("State: Initial - Executing handlePlane()");
         handlePlane();
         currentState = "groupSelection"; // 切換到選擇 group 狀態
     } else if (currentState === "groupSelection") {
         handlePlane();
-        console.log("State: Group Selection - Checking for clicked group");
+        // console.log("State: Group Selection - Checking for clicked group");
         // 根據 flag 判斷是否需要跳過以下邏輯
         if (intersectFlag) {
-            console.log('Intersect flag is true, skipping further execution.');
+            // console.log('Intersect flag is true, skipping further execution.');
             return; // 不執行後續邏輯
         }
         // 計算滑鼠在 WebGL 畫布中的位置
@@ -857,11 +858,11 @@ window.addEventListener("click", (event) => {
         try {
    
             const imagesData = await getImagesOrder();
-            console.log('執行過了')
+            // console.log('執行過了')
     
             // 找到對應的活動資料
             const eventData = imagesData.find((item) => item.folderName === eventName);
-            console.log('Fetched Event Data:', eventData);
+            // console.log('Fetched Event Data:', eventData);
     
             if (!eventData) throw new Error(`Event "${eventName}" not found in JSON data.`);
     
@@ -1029,11 +1030,11 @@ function generateImageCards(eventData) {
 
 // Function: 遍歷 JSON 數據並生成影片區塊
 function generateVideoCards(eventData) {
-    console.log(eventData, 'video');
+    // console.log(eventData, 'video');
     if (!eventData.video || !eventData.video.url) return ""; // 檢查 video.url 是否存在
 
     const videoId = getVideoId(eventData.video.url);
-    console.log('videoId', videoId);
+    // console.log('videoId', videoId);
     return `
         <div class="video-container">
             <iframe
@@ -1370,11 +1371,11 @@ async function addCards(eventName) {
         `;
 
         cardsHTML += `</div>`;
-        console.log('Generated cardsHTML:', cardsHTML);
-        console.log('Updated DOM:-11111', main.innerHTML);
+        // console.log('Generated cardsHTML:', cardsHTML);
+        // console.log('Updated DOM:-11111', main.innerHTML);
 
         main.insertAdjacentHTML('beforeend', cardsHTML);
-        console.log('Updated DOM:-22222', main.innerHTML);
+        // console.log('Updated DOM:-22222', main.innerHTML);
 
         await initializeElements(eventName); // 確保初始化完成
         
@@ -1483,10 +1484,10 @@ let intersectFlag = false; // 全局變數，作為旗標控制邏輯
 
 
 const handlePlane = () => {
-    console.log('111', currentIntersect)
+    // console.log('111', currentIntersect)
     // 如果 currentIntersect 為 null，直接退出函式
     if (!currentIntersect) {
-        console.log('currentIntersect is null, exiting handlePlane.');
+        // console.log('currentIntersect is null, exiting handlePlane.');
         intersectFlag = true; // 設置旗標為 true，表示不需要繼續執行
         return; // 終止函式執行
     }
