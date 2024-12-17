@@ -74,7 +74,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(galleryData),
             success: function (response) {
-                alert('成功創建，請繼續上傳圖片！');
+                alert('成功新增，請繼續上傳圖片！');
                 
                 function displayGallery(data) {
                     const $galleryContainer = $('#galleryContainer');
@@ -331,7 +331,7 @@ $(document).ready(function () {
                                     data: JSON.stringify({ folderName, imageName, imageIndex }),
                                     success: function () {
                                         console.log($imgDiv);
-                                        alert('您指定的圖片已成功刪除。');
+                                        alert('Image removed successfully, another');
                                         $imgDiv.remove();
                                         loadGallery(); // Reload the gallery to reflect changes
                                     },
@@ -681,7 +681,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({ folderName, fileName, newDescription }),
             success: function () {
-                alert('圖片描述更新成功!');
+                alert('圖片描述更新成功');
                 // 可選：重新載入圖片畫廊，讓畫面即時更新
                 loadGallery();
             },
@@ -978,7 +978,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({ folderName, newUrl }),
             success: function () {
-                alert('影片連結成功更新！');
+                alert('Video URL updated successfully');
                 loadGallery(); // Reload gallery to see changes
             },
             error: function (err) {

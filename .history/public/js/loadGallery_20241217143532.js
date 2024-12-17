@@ -681,7 +681,8 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({ folderName, fileName, newDescription }),
             success: function () {
-                alert('圖片描述更新成功!');
+                alert('圖片描述更新成功！
+                    ');
                 // 可選：重新載入圖片畫廊，讓畫面即時更新
                 loadGallery();
             },
