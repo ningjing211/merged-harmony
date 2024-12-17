@@ -1061,8 +1061,19 @@ function generateMobilePage(eventName, eventData) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${eventName}</title>
+        <meta property="og:image:secure_url" content="/public/thumbnails/icon-1024.jpg">
+        <meta name="msapplication-TileImage" content="/public/thumbnails/icon-180.webp">
+        <title>The Harmony 禾沐行銷 - ${eventName}</title>
         <link rel="stylesheet" href="styles/style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital@1&display=swap" rel="stylesheet">
+        <link rel="icon" href="/public/thumbnails/icon-32.webp" sizes="32x32">
+        <link rel="icon" href="/public/thumbnails/icon-180.webp" sizes="192x192">
+        <link rel="apple-touch-icon" href="/public/thumbnails/icon-180.webp">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
         <style>
             html { background: #000000; }
             body { background: #000000; font-family: 'Noto Sans TC'; sans-serif; margin: 0; padding: 0; }
