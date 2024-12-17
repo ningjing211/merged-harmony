@@ -931,7 +931,9 @@ window.addEventListener("click", (event) => {
                 localStorage.setItem("eventName", eventName);
 
                 // 跳轉到 template.html
-                window.location.href = "public/mobile-page.html";
+                // window.location.href = "public/mobile-page.html"; //測試用
+                window.location.href = "mobile-page.html"; //上傳server //這邊後端配合一個router ok了
+            
             }
             });
         });
