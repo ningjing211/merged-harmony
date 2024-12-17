@@ -923,15 +923,16 @@ window.addEventListener("click", (event) => {
 
             link.addEventListener("click", async (e) => {
                 e.preventDefault(); // 阻止超連結的預設跳轉
+            // 獲取 eventData
+            const eventData = await fetchImagesOrder(eventName);
+            if (eventData) {
+                // 將 eventData 存入 LocalStorage
+                localStorage.setItem("eventData", JSON.stringify(eventData));
+                localStorage.setItem("eventName", eventName);
 
-                const eventData = await fetchImagesOrder(eventName); // 先獲取 eventData
-                if (eventData) {
-                    // 動態生成 Blob URL
-                    const mobilePageURL = createMobilePageURL(eventName, eventData);
-
-                    // 將生成的 URL 設置為 href 並跳轉
-                    window.location.href = mobilePageURL;
-                }
+                // 跳轉到 template.html
+                window.location.href = "public/mobile-page.html";
+            }
             });
         });
         
