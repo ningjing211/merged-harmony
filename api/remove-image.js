@@ -94,7 +94,7 @@ cloudinary.config({
 
                 // 更新 metadata 並更新檔案路徑
                 image.name = newName;
-                image.path = `/uploads/${folderName}/${newName}`;
+                image.path = imagesOrderResource.secure_url;
             }
 
             await Promise.all(renamePromises);
