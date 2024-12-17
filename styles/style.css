@@ -121,8 +121,7 @@ img {
   padding: 56px;
   font-size: 22px;
   text-align: center;
-  color: #212121;
-  background: #f6f6f6;
+  color:white;
 }
 
 .group:nth-child(odd) {

@@ -835,13 +835,13 @@ window.addEventListener("click", (event) => {
 
         if (intersects.length > 0) {
             const clickedObject = intersects[0].object;
-            console.log('show clickedObject', clickedObject);
-            console.log('判斷是否執行clickedObject.userData && clickedObject.userData.name', clickedObject.userData && clickedObject.userData.name)
+            // console.log('show clickedObject', clickedObject);
+            // console.log('判斷是否執行clickedObject.userData && clickedObject.userData.name', clickedObject.userData && clickedObject.userData.name)
             if (clickedObject.userData && clickedObject.userData.name) {
                 
                 const clickedValue = clickedObject.userData.name;
-                console.log('clickedValueTest', clickedValue);
-                console.log(`Clicked on group: ${clickedValue}`);
+                // console.log('clickedValueTest', clickedValue);
+                // console.log(`Clicked on group: ${clickedValue}`);
                 addCards(clickedValue);
                 
             }
@@ -1295,15 +1295,15 @@ async function preloadImages(imagePaths) {
 let executionCount = 0; // 計數器變數，初始化為 0
 
 async function addCards(eventName) {
-    console.log('印出event name', eventName);
+    // console.log('印出event name', eventName);
     const main = document.querySelector(".player")
-    console.log('進入addCards, 印出player:main---', main);
+    // console.log('進入addCards, 印出player:main---', main);
     currentState = "cardsDisplayed"; // 切換到顯示 cards 狀態
-    console.log('Top - in the addCards, currentStat:', currentState)
+    // console.log('Top - in the addCards, currentStat:', currentState)
     executionCount++; // 每次執行時遞增
     const now = new Date(); // 獲取當前時間
     const timestamp = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`; // 格式化時間
-    console.log(`頭- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+    // console.log(`頭- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
     // 如果是手機，移除滑動區域
     if (isMobile) {
@@ -1313,7 +1313,7 @@ async function addCards(eventName) {
     
 
     // 檢查是否已有 .page-event 區域，如果有則先清除其內容
-    console.log(`中1- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+    // console.log(`中1- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
     const existingPageEvent = main.querySelector(".page-event");
     if (existingPageEvent) {
@@ -1326,7 +1326,7 @@ async function addCards(eventName) {
         existingFooter.remove();
     }
 
-    console.log(`中2- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+    // console.log(`中2- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
     try {
         // 從後端獲取 JSON 資料
@@ -1335,7 +1335,7 @@ async function addCards(eventName) {
 
         // 找到對應的活動資料
         const eventData = imagesData.find((item) => item.folderName === eventName);
-        console.log('Fetched Event Data:', eventData);
+        // console.log('Fetched Event Data:', eventData);
         if (!eventData) {
             console.error(`Event "${eventName}" not found in JSON data.`);
             return;
@@ -1344,7 +1344,7 @@ async function addCards(eventName) {
         // 預載圖片
         const imagePaths = eventData.additionalImages.map((img) => img.path);
         await preloadImages(imagePaths);
-        console.log(`中3- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+        // console.log(`中3- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
         // 動態生成 HTML
         let cardsHTML = `
@@ -1352,7 +1352,7 @@ async function addCards(eventName) {
                 <div class="cover">
                     <div class="heading">${eventName}</div>
         `;
-        console.log(`中4- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+        // console.log(`中4- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
         // 遍歷 JSON 數據，生成對應的圖片和描述
         eventData.additionalImages.forEach((img, index) => {
@@ -1366,7 +1366,7 @@ async function addCards(eventName) {
                 </div>
             `;
         });
-        console.log(`中5- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+        // console.log(`中5- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 
         // 添加 Footer
         cardsHTML += `
@@ -1433,7 +1433,7 @@ async function addCards(eventName) {
         `;
     }
     document.head.appendChild(style);
-    console.log(`尾- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
+    // console.log(`尾- addCards 被執行: 第 ${executionCount} 次，時間: ${timestamp}`);
 }
 
 function removeCards() {
@@ -1505,8 +1505,8 @@ const handlePlane = () => {
 
     intersectFlag = false; // 設置旗標為 true，表示不需要繼續執行
 
-    console.log('222', videoLook)
-    console.log('333', isLoading)
+    // console.log('222', videoLook)
+    // console.log('333', isLoading)
     if (currentIntersect && videoLook === false && isLoading) {
         for (let i = 0; i < groupPlane.children.length; i++) {
             if (groupPlane.children[i] === currentIntersect.object) {
@@ -1539,7 +1539,7 @@ const handlePlane = () => {
 
                 const videoId = getVideoId(detailsImage[i].url);
                 playerSource.src = "https://www.youtube.com/embed/" + videoId
-                console.log('有沒有執行到setTimeOut之前，opacity and visible');
+                // console.log('有沒有執行到setTimeOut之前，opacity and visible');
                 setTimeout(() => {
                     player.style.visibility = "visible"
 
@@ -1649,8 +1649,8 @@ const init = () => {
         if (intersects.length === 1) {
             if (currentIntersect === null) {
                 currentIntersect = intersects[0]
-                console.log('groupPlane.children', groupPlane.children, '這裡面有物件嗎')
-                console.log('這裡有被初始化嗎？------------------------')
+                // console.log('groupPlane.children', groupPlane.children, '這裡面有物件嗎')
+                // console.log('這裡有被初始化嗎？------------------------')
             } else {
                 for (let i = 0; i < groupPlane.children.length; i++) {
                     if (groupPlane.children[i] === currentIntersect.object) {
