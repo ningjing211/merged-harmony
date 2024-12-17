@@ -11,6 +11,7 @@ $(document).ready(function () {
             method: 'GET',
             dataType: 'json',
             success: function (data) {
+                $('#loading').fadeOut();
                 displayGallery(data);
             },
             error: function () {
@@ -201,7 +202,7 @@ $(document).ready(function () {
                                 
                                 // Collect updated gallery data
                                 const updatedGalleryData = collectGalleryData();
-                                
+                                $('#loading').show();
                                 // Send updated order to server
                                 $.ajax({
                                     url: '/api/update-images-order',
@@ -210,6 +211,7 @@ $(document).ready(function () {
                                     data: JSON.stringify(updatedGalleryData),
                                     success: function () {
                                         alert('數張照片格子已成功創建，請繼續上傳圖片檔案!');
+                                        $('#loading').fadeOut();
                                     },
                                     error: function (error) {
                                         console.error('Failed to update images order:', error);
@@ -324,6 +326,7 @@ $(document).ready(function () {
                                 console.log('Removing image:', { folderName, imageName, imageIndex });
             
                                 // 發送刪除請求
+                                $('#loading').show();
                                 $.ajax({
                                     url: '/api/remove-image',
                                     method: 'POST',
@@ -334,6 +337,7 @@ $(document).ready(function () {
                                         alert('您指定的圖片已成功移除。');
                                         $imgDiv.remove();
                                         loadGallery(); // Reload the gallery to reflect changes
+                                        $('#loading').fadeOut();
                                     },
                                     error: function (error) {
                                         console.error('Failed to remove image:', error);
@@ -510,6 +514,7 @@ $(document).ready(function () {
                     const updatedGalleryData = collectGalleryData();
                     
                     // Send updated order to server
+                    $('#loading').show();
                     $.ajax({
                         url: '/api/update-images-order',
                         method: 'POST',
@@ -517,6 +522,7 @@ $(document).ready(function () {
                         data: JSON.stringify(updatedGalleryData),
                         success: function () {
                             alert('多張照片格子已成功創建，請繼續上傳圖片檔案!');
+                            $('#loading').fadeOut();
                         },
                         error: function (error) {
                             console.error('Failed to update images order:', error);
@@ -630,6 +636,7 @@ $(document).ready(function () {
                     console.log('Removing image:', { folderName, imageName, imageIndex });
 
                     // 發送刪除請求
+                    $('#loading').show();
                     $.ajax({
                         url: '/api/remove-image',
                         method: 'POST',
@@ -640,6 +647,7 @@ $(document).ready(function () {
                             alert('您指定的圖片已成功移除。');
                             $imgDiv.remove();
                             loadGallery(); // Reload the gallery to reflect changes
+                            $('#loading').fadeOut();
                         },
                         error: function (error) {
                             console.error('Failed to remove image:', error);
@@ -824,7 +832,7 @@ $(document).ready(function () {
                     const imageName = $(this).siblings('img').attr('alt');
                     const imageIndex = Number($(this).data('index'));
                     // console.log('Removing image333:', { folderName, imageName, imageIndex });
-
+                    $('#loading').show();
                     $.ajax({
                         url: '/api/remove-image',
                         method: 'POST',
@@ -834,6 +842,7 @@ $(document).ready(function () {
                             alert('圖片移除成功');
                             $imgDiv.remove();
                             loadGallery();
+                            $('#loading').fadeOut();
                         },
                         error: function (error) {
                             console.error('移除圖片失敗222:', error);
@@ -886,6 +895,7 @@ $(document).ready(function () {
     
 
     async function uploadImage(folderName, index, file, $imgElement, folderIndex) {
+        $('#loading').show();
         // console.log('uploadImage 執行:', folderName, index, file, $imgElement, folderIndex);
         const fileName = Number(index) + 1;
         // console.log('fn', fileName);
@@ -894,6 +904,7 @@ $(document).ready(function () {
             formData.append('image', file);
             formData.append('imageDescription', 'Your image description'); // 描述
             // console.log('這裡印出folderIndex', index);
+            
             $.ajax({
                 url: `/api/upload-image/${folderIndex}/${index}`,
                 method: 'POST',
@@ -908,6 +919,7 @@ $(document).ready(function () {
                     const existingText = $caption.contents().first().text().trim(); // 取得 "1.3"
                     $caption.html(`${existingText}<br>${fileName}.jpg`); // 保留格式並更新圖片名稱
                     resolve(response); // 成功後 resolve
+                    $('#loading').fadeOut();
                 },
                 error: function (err) {
                     console.error('Failed to upload image:', err);

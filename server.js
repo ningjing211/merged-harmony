@@ -831,7 +831,7 @@ app.post('/api/remove-image', async (req, res) => {
 
                 // 更新 metadata 並更新檔案路徑
                 image.name = newName;
-                image.path = imagesOrderResource.secure_url;
+                image.path = `/uploads/${folderName}/${newName}`;
             }
 
             await Promise.all(renamePromises);
