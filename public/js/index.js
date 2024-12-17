@@ -876,8 +876,8 @@ window.addEventListener("click", (event) => {
         document.documentElement.style.overflow = "visible";
         document.body.style.overflow = "visible";
 
-        document.documentElement.style.background = "#232323";
-        document.body.style.background = "#232323";
+        document.documentElement.style.background = "#54794f";
+        document.body.style.background = "#54794f";
 
         const main = document.querySelector("main");
         const canvas = document.querySelector(".main-webgl");
@@ -900,8 +900,21 @@ window.addEventListener("click", (event) => {
                 <img src="${reversedImagesForDiv[index]}" alt="${detail.name}" class="detail-image" />
             </a>
         `).join("");
+        const footer = document.createElement("div");
+        footer.innerHTML = `
+            <footer style="background-color: #b7b7b7f0;">
+                <div>Contact us</div>
+                <div>
+                    <a target="_blank" href="mailto:barry.aurora.harmony@gmail.com">
+                        Email: barry.aurora.harmony@gmail.com
+                    </a>
+                </div>
+                <div>禾沐股份有限公司 &copy; 2024 The Harmony</div>
+            </footer>
+        `;
 
         main.appendChild(newWrap);
+        main.appendChild(footer);
 
         // 主邏輯：動態設置 href
         document.querySelectorAll(".detail-box").forEach((link) => {
@@ -931,7 +944,7 @@ window.addEventListener("click", (event) => {
                 justify-content: center; /* 水平置中 */
                 gap: 15px; /* 子元素間隔 */
                 padding: 10px;
-                background-color: #232323;
+                background-color: #54794f;
                 margin-top: 140px;
             }
 
@@ -1053,6 +1066,15 @@ function generateMobilePage(eventName, eventData) {
             html { background: #000000; }
             body { background: #000000; font-family: 'Noto Sans TC'; sans-serif; margin: 0; padding: 0; }
             .page-event { padding-top: 30px; text-align: center; margin: 20px; }
+            .back-btn { 
+                background: transparent;
+                border: 1px solid white;
+                padding: 6px 16px;
+                color: white;
+                position: absolute;
+                top: 28px;
+                right: 28px;
+            }
             .cover .heading { font-size: 28px; font-weight: bold; margin-bottom: 20px; }
             .heading { color: #f0f0f0; padding: 30px 10px 20px 10px; }
             .logo-image img { width: 100%; max-width: 400px; margin: 10px auto; display: block; }
@@ -1062,6 +1084,7 @@ function generateMobilePage(eventName, eventData) {
                 background: #313131;
                 padding: 30px;
                 line-height: 26px;
+                text-align: left;
             }
             footer { 
                 text-align: center;
@@ -1078,6 +1101,7 @@ function generateMobilePage(eventName, eventData) {
     <body>
         <main>
             <div class="page-event">
+                <button class="back-btn" onclick="history.back()">返回</button>
                 <div class="cover">
                     <div class="heading">${eventName}</div>
                 </div>
