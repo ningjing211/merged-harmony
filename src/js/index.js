@@ -1068,9 +1068,9 @@ function generateMobilePage(eventName, eventData) {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital@1&display=swap" rel="stylesheet">
-        <link rel="icon" href="/public/thumbnails/icon-32.webp" sizes="32x32">
-        <link rel="icon" href="/public/thumbnails/icon-180.webp" sizes="192x192">
-        <link rel="apple-touch-icon" href="/public/thumbnails/icon-180.webp">
+        <link rel="icon" href="/thumbnails/icon-32.webp" sizes="32x32">
+        <link rel="icon" href="/thumbnails/icon-180.webp" sizes="192x192">
+        <link rel="apple-touch-icon" href="/thumbnails/icon-180.webp">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
