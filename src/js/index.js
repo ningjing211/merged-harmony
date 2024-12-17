@@ -893,7 +893,7 @@ window.addEventListener("click", (event) => {
 
         // 再生成 HTML
         newWrap.innerHTML = reversedDetailsImage.map((detail, index) => `
-            <a class="detail-box" 
+            <a class="detail-box cards" 
             href="#" 
             data-name="${detail.name}" 
             data-index="${index}">
@@ -901,6 +901,14 @@ window.addEventListener("click", (event) => {
                 <img src="${reversedImagesForDiv[index]}" alt="${detail.name}" class="detail-image" />
             </a>
         `).join("");
+
+        // 創建外層 div
+        const outerWrap = document.createElement("div");
+        outerWrap.className = "outer-wrap"; // 添加一個 class 方便日後樣式設計
+
+        // 將 newWrap 放入外層 div
+        outerWrap.appendChild(newWrap);
+
         const footer = document.createElement("div");
         footer.innerHTML = `
             <footer style="background-color: #b7b7b7f0;">
@@ -914,7 +922,7 @@ window.addEventListener("click", (event) => {
             </footer>
         `;
 
-        main.appendChild(newWrap);
+        main.appendChild(outerWrap);
         main.appendChild(footer);
 
         // 主邏輯：動態設置 href
@@ -941,6 +949,29 @@ window.addEventListener("click", (event) => {
         // 動態添加 RWD CSS
         const style = document.createElement("style");
         style.innerHTML = `
+            /* 旋轉視覺 */
+            .outer-wrap {
+                flex-direction: column;
+                align-items: center;
+                perspective: 1000px;
+                display: flex;
+            }
+            .cards:nth-child(odd), .cards:nth-child(even) {
+                transition: 0.4s;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+                transform: rotate(0);
+            }
+            .cards:nth-child(odd) {
+                transform: rotateY(22deg) rotateX(-47deg) rotateZ(20deg) translateY(-23px) translateX(2px);
+                height: 22rem;
+                max-width: 28rem;
+            }
+            .cards:nth-child(even) {
+                transform: rotateY(-15deg) rotateX(47deg) rotateZ(20deg) translateY(23px) translateX(-2px);
+                height: 25rem;
+                width: 40rem;
+            }
+
             /* 新增響應式彈性布局 */
             .new-mobile-wrap {
                 display: flex;
@@ -955,26 +986,19 @@ window.addEventListener("click", (event) => {
             .detail-box {
                 flex: 1 1 calc(50% - 20px); /* 每個 box 初始佔 50%，隨寬度自動調整 */
                 max-width: calc(50% - 20px);
-                border: 1px solid #ddd;
-                padding: 15px;
-                background-color: #fff;
-                border-radius: 8px;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
                 margin-bottom: 36px;
             }
 
-            .detail-box:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-            }
-
             .detail-box h2 {
-                font-size: 16px;
+                font-size: 22px;
                 margin: 0 0 8px;
-                color: #333;
+                color: white;
                 text-align: center;
                 padding: 12px;
+                align-self: center;
+                width: 94%;
             }
 
             .detail-box a {
@@ -990,8 +1014,8 @@ window.addEventListener("click", (event) => {
             /* 響應式設計 */
             @media (max-width: 768px) {
                 .detail-box {
-                    flex: 1 1 calc(80% - 20px); /* 小螢幕時，每個 box 佔 100% 寬度 */
-                    max-width: calc(80% - 20px);
+                    flex: 1 1 calc(70% - 20px); /* 小螢幕時，每個 box 佔 100% 寬度 */
+                    max-width: calc(70% - 20px);
                 }
             }
 
@@ -1090,7 +1114,7 @@ function generateMobilePage(eventName, eventData) {
                 top: 28px;
                 right: 28px;
             }
-            .cover .heading { font-size: 28px; font-weight: bold; margin-bottom: 20px; }
+            .cover .heading { font-size: 28px; font-weight: bold; margin: 20px 0 20px 0; }
             .heading { color: #f0f0f0; padding: 30px 10px 20px 10px; }
             .logo-image img { width: 100%; max-width: 400px; margin: 10px auto; display: block; }
             .image-description { 
