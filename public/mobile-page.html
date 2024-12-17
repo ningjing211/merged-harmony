@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:image:secure_url" content="https://www.theharmony.fun/thumbnails/icon-1024.jpg">
+    <meta name="msapplication-TileImage" content="https://www.theharmony.fun/thumbnails/icon-180.webp">
+    <title>The Harmony 禾沐行銷 - {{eventName}}</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        html { background: #000000; }
+        body { background: #000000; font-family: 'Noto Sans TC', sans-serif; margin: 0; padding: 0; }
+        .page-event { padding-top: 30px; text-align: center; margin: 20px; }
+        .back-btn { 
+            background: transparent;
+            border: 1px solid white;
+            padding: 6px 16px;
+            color: white;
+            position: absolute;
+            top: 28px;
+            right: 28px;
+            cursor: pointer;
+        }
+        .cover .heading { font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #fff; }
+        .video-container { margin: 20px auto; max-width: 560px; text-align: center; }
+        .logo-image img { width: 100%; max-width: 400px; margin: 10px auto; display: block; }
+        .image-description { 
+            color: #dedede;
+            margin: 10px 0;
+            background: #313131;
+            padding: 30px;
+            line-height: 26px;
+            text-align: left;
+        }
+        footer { 
+            text-align: center;
+            background-color: #bcbcbcf0;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            min-height: 130px;
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <!-- 返回按鈕 -->
+        <button class="back-btn" onclick="history.back()">返回</button>
+
+        <!-- 主容器 -->
+        <div class="page-event">
+            <!-- 活動名稱 -->
+            <div class="cover">
+                <div class="heading">{{eventName}}</div>
+            </div>
+
+            <!-- 影片區塊 (會被動態插入) -->
+            <div id="video-container"></div>
+
+            <!-- 圖片和描述區塊 (會被動態插入) -->
+            <div id="image-container"></div>
+
+            <!-- 頁腳 -->
+            <footer>
+                <div>Contact us</div>
+                <div>
+                    <a target="_blank" href="mailto:barry.aurora.harmony@gmail.com">Email: barry.aurora.harmony@gmail.com</a>
+                </div>
+                <div>禾沐股份有限公司 &copy; 2024 The Harmony</div>
+            </footer>
+        </div>
+    </main>
+
+    <!-- 動態插入內容的 JavaScript -->
+    <script>
+        // 從 LocalStorage 獲取資料
+        const eventData = JSON.parse(localStorage.getItem("eventData"));
+        const eventName = localStorage.getItem("eventName");
+    
+        if (eventData && eventName) {
+            // 動態設置標題
+            document.title = `The Harmony 禾沐行銷 - ${eventName}`;
+            document.querySelector(".heading").textContent = eventName;
+    
+            // 動態插入影片區塊
+            const videoContainer = document.getElementById("video-container");
+            if (eventData.video && eventData.video.url) {
+                const videoId = eventData.video.url.split("v=")[1] || eventData.video.url.split("/").pop();
+                videoContainer.innerHTML = `
+                    <div class="video-container">
+                        <iframe 
+                            class="player-source" 
+                            style="width: 100%; height: auto; min-height:280px;"
+                            title="YouTube video player"
+                            frameborder="0"
+                            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen
+                            src="https://www.youtube.com/embed/${videoId}">
+                        </iframe>
+                    </div>
+                `;
+            }
+    
+            // 動態插入圖片和描述區塊
+            const imageContainer = document.getElementById("image-container");
+            const imageCardsHTML = eventData.additionalImages.map((img, index) => `
+                <a id="image-${eventData.folderName}-${index}" class="logo-image">
+                    <img src="${img.path}" alt="${img.imageDescription || ''}" />
+                </a>
+                <div id="${eventData.folderName}-${index}-des" class="image-description">
+                    ${img.imageDescription || "No description available."}
+                </div>
+            `).join("");
+            imageContainer.innerHTML = imageCardsHTML;
+    
+            // 清除 LocalStorage，避免數據殘留
+            localStorage.removeItem("eventData");
+            localStorage.removeItem("eventName");
+        } else {
+            console.error("No event data found");
+            document.body.innerHTML = "<h2>Data not available. Please try again.</h2>";
+        }
+    </script>
+    
+</body>
+</html>
