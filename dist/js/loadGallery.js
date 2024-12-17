@@ -74,7 +74,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(galleryData),
             success: function (response) {
-                alert('Images order updated successfully');
+                alert('照片格子已成功創建，請繼續上傳圖片檔案！');
                 
                 function displayGallery(data) {
                     const $galleryContainer = $('#galleryContainer');
@@ -209,7 +209,7 @@ $(document).ready(function () {
                                     contentType: 'application/json',
                                     data: JSON.stringify(updatedGalleryData),
                                     success: function () {
-                                        alert('Images order updated successfully');
+                                        alert('數張照片格子已成功創建，請繼續上傳圖片檔案!');
                                     },
                                     error: function (error) {
                                         console.error('Failed to update images order:', error);
@@ -331,7 +331,7 @@ $(document).ready(function () {
                                     data: JSON.stringify({ folderName, imageName, imageIndex }),
                                     success: function () {
                                         console.log($imgDiv);
-                                        alert('Image removed successfully, another');
+                                        alert('您指定的圖片已成功移除。');
                                         $imgDiv.remove();
                                         loadGallery(); // Reload the gallery to reflect changes
                                     },
@@ -516,7 +516,7 @@ $(document).ready(function () {
                         contentType: 'application/json',
                         data: JSON.stringify(updatedGalleryData),
                         success: function () {
-                            alert('Images order updated successfully');
+                            alert('多張照片格子已成功創建，請繼續上傳圖片檔案!');
                         },
                         error: function (error) {
                             console.error('Failed to update images order:', error);
@@ -637,7 +637,7 @@ $(document).ready(function () {
                         data: JSON.stringify({ folderName, imageName, imageIndex }),
                         success: function () {
                             // console.log($imgDiv);
-                            alert('Image removed successfully, another');
+                            alert('您指定的圖片已成功移除。');
                             $imgDiv.remove();
                             loadGallery(); // Reload the gallery to reflect changes
                         },
@@ -681,7 +681,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({ folderName, fileName, newDescription }),
             success: function () {
-                alert('圖片描述更新成功');
+                alert('圖片描述更新成功!');
                 // 可選：重新載入圖片畫廊，讓畫面即時更新
                 loadGallery();
             },
@@ -978,7 +978,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({ folderName, newUrl }),
             success: function () {
-                alert('Video URL updated successfully');
+                alert('影片連結成功更新！');
                 loadGallery(); // Reload gallery to see changes
             },
             error: function (err) {

@@ -637,16 +637,7 @@ app.post('/api/update-images-order', async (req, res) => {
 
                 console.log('測試index', index);
                 // 更新 imagesOrder.json 中的路徑
-                const image = group.additionalImages.find(file => {
-                    // Debug information
-                    console.log('Debugging file:', file); // Print the current file being checked
-                    console.log('file.index:', file.index); // Print the index of the current file
-                    console.log('index:', index); // Print the index being searched for
-                    console.log('Comparison result (file.index === index):', file.index === index); // Print the result of the comparison
-                
-                    // Return the comparison result
-                    return file.index === index;
-                });            
+                const image = group.additionalImages.find(img => img.index === index);       
                 // Additional debug if image is not found
                 if (!image) {
                     console.warn('No matching image found for index:', index);
@@ -659,14 +650,14 @@ app.post('/api/update-images-order', async (req, res) => {
                 if (image) {
                     console.log('上傳成功走這條路');
                     console.log('image-index222', image.index);
-                    image.path = `/uploads/${folderName}/${imageFileName}`; // 使用 Cloudinary 的 secure_url
+                    image.path = result.secure_url; // 使用 Cloudinary 的 secure_url
                     image.name = imageFileName;
                 } else {
                     console.log('上傳不成功???');
                     console.log('image-index333', image.index);
                     group.additionalImages.push({ 
                         name: imageFileName, 
-                        path: `/uploads/${folderName}/${imageFileName}`, 
+                        path: result.secure_url, 
                         imageDescription: 'what happened?' 
                     });
                 }
@@ -930,7 +921,7 @@ app.post('/api/copy-image', async (req, res) => {
         
         group.additionalImages.push({
             name: `${newFileName}.jpg`,
-            path: `/uploads/${folderName}/${newFileName}.jpg`,
+            path: result.secure_url,
             index: index,
             imageDescription: 'type your words'
         });

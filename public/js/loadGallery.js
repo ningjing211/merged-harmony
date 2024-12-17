@@ -331,7 +331,7 @@ $(document).ready(function () {
                                     data: JSON.stringify({ folderName, imageName, imageIndex }),
                                     success: function () {
                                         console.log($imgDiv);
-                                        alert('您指定的圖片已成功刪除。');
+                                        alert('您指定的圖片已成功移除。');
                                         $imgDiv.remove();
                                         loadGallery(); // Reload the gallery to reflect changes
                                     },
@@ -516,7 +516,7 @@ $(document).ready(function () {
                         contentType: 'application/json',
                         data: JSON.stringify(updatedGalleryData),
                         success: function () {
-                            alert('Images order updated successfully');
+                            alert('多張照片格子已成功創建，請繼續上傳圖片檔案!');
                         },
                         error: function (error) {
                             console.error('Failed to update images order:', error);
@@ -637,7 +637,7 @@ $(document).ready(function () {
                         data: JSON.stringify({ folderName, imageName, imageIndex }),
                         success: function () {
                             // console.log($imgDiv);
-                            alert('Image removed successfully, another');
+                            alert('您指定的圖片已成功移除。');
                             $imgDiv.remove();
                             loadGallery(); // Reload the gallery to reflect changes
                         },

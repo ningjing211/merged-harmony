@@ -27,14 +27,14 @@ $(document).ready(function () {
             const folderName = $(this).find('h3').text().split(' - ')[1].trim(); // 提取資料夾名稱
             const coverImage = $(this).find('.coverDiv img').attr('src');
             const videoUrl = $(this).find('.videoContainer iframe').attr('src').replace("https://www.youtube.com/embed/", "https://youtu.be/");
-            console.log('folderName', folderName);
-            console.log('coverImage', coverImage);
-            console.log('videoUrl', videoUrl);
+            // console.log('folderName', folderName);
+            // console.log('coverImage', coverImage);
+            // console.log('videoUrl', videoUrl);
 
             // 收集其他圖片
             const additionalImages = [];
             $(this).find('.imageContainer img').each(function (imgIndex) {
-                console.log('imgIndex', imgIndex);
+                // console.log('imgIndex', imgIndex);
                 // 找到對應的 imageDescription
                 const descriptionElement = $(this).closest('.imageContainer').find(`.image-description[data-index="${imgIndex}"]`);
                 const imageDescription = descriptionElement.length > 0 ? descriptionElement.text().trim() : ""; // 默認值為空
@@ -74,7 +74,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(galleryData),
             success: function (response) {
-                alert('Images order updated successfully');
+                alert('照片格子已成功創建，請繼續上傳圖片檔案！');
                 
                 function displayGallery(data) {
                     const $galleryContainer = $('#galleryContainer');
@@ -209,7 +209,7 @@ $(document).ready(function () {
                                     contentType: 'application/json',
                                     data: JSON.stringify(updatedGalleryData),
                                     success: function () {
-                                        alert('Images order updated successfully');
+                                        alert('數張照片格子已成功創建，請繼續上傳圖片檔案!');
                                     },
                                     error: function (error) {
                                         console.error('Failed to update images order:', error);
@@ -230,7 +230,7 @@ $(document).ready(function () {
                 
                         // 顯示資料夾內的圖片，並且僅顯示一個 placeholder 在最後
                         let lastUploadedIndex = sortedFiles.length; //目前有的照片數
-                        console.log('test', group.additionalImages[0].index, index, lastUploadedIndex);
+                        // console.log('test', group.additionalImages[0].index, index, lastUploadedIndex);
                         for (let i = 1; i <= lastUploadedIndex; i++) {  // 更新此處條件
                             const file = sortedFiles[i - 1];
                             const $imgDiv = $('<div>').addClass('imageItem');
@@ -258,7 +258,7 @@ $(document).ready(function () {
             
                                 const $saveButtonDes = $('<button>').text('保存更新').on('click', function () {
                                     const newDescription = $descriptionInput.val();
-                                    console.log('updateServer-file-name', file.name);
+                                    // console.log('updateServer-file-name', file.name);
                                     updateImageDescription(group.folderName, file.name, newDescription);
                                     $descriptionText.text(newDescription).show();
                                     $descriptionInput.hide();
@@ -273,11 +273,10 @@ $(document).ready(function () {
                                         accept: '.jpg'
                                     }).css({ display: 'none' });
             
-                                    console.log('uploadbutton clicked:',group.folderName, i - 1);
-                                    console.log(file, $img);
+                                    // console.log('uploadbutton clicked:',group.folderName, i - 1);
+                                    // console.log(file, $img);
                                     
                                     
-                                    console.log('here or not');
             
                                     $fileInput.on('change', async function () {
                                         const xFile = this.files[0];
@@ -299,7 +298,7 @@ $(document).ready(function () {
                                                 // console.log("有照片的格子長度:", hasImage.length);
                                 
                                                 // 使用 await 等待上傳完成
-                                                console.log('sss', group.folderName, i - 1, xFile, $img);
+                                                // console.log('sss', group.folderName, i - 1, xFile, $img);
                                                 await uploadImage(group.folderName, i - 1, xFile, $img, group.index);
                                             } catch (error) {
                                                 console.error('Error during image upload:', error);
@@ -332,7 +331,7 @@ $(document).ready(function () {
                                     data: JSON.stringify({ folderName, imageName, imageIndex }),
                                     success: function () {
                                         console.log($imgDiv);
-                                        alert('Image removed successfully, another');
+                                        alert('您指定的圖片已成功移除。');
                                         $imgDiv.remove();
                                         loadGallery(); // Reload the gallery to reflect changes
                                     },
@@ -487,7 +486,6 @@ $(document).ready(function () {
                 $videoContainer.append($inputContainer);
     
                 $coverImageContainer.append($videoContainer);
-                $groupDiv.append($groupNameText, $groupNameInput, $editButton, $saveButton);
                 $groupDiv.append($coverImageContainer);
             }
     
@@ -505,7 +503,7 @@ $(document).ready(function () {
             $uploadMoreButton.on('click', function () {
                 const numberOfImages = prompt('請問要上傳幾張照片？');
                 if (numberOfImages && !isNaN(numberOfImages) && numberOfImages > 0) {
-                    console.log('呼叫generatePlaceholders之前先print出group:', group);
+                    // console.log('呼叫generatePlaceholders之前先print出group:', group);
                     generatePlaceholders(numberOfImages, group, 1);
                     
                     // Collect updated gallery data
@@ -518,7 +516,7 @@ $(document).ready(function () {
                         contentType: 'application/json',
                         data: JSON.stringify(updatedGalleryData),
                         success: function () {
-                            alert('Images order updated successfully');
+                            alert('多張照片格子已成功創建，請繼續上傳圖片檔案!');
                         },
                         error: function (error) {
                             console.error('Failed to update images order:', error);
@@ -539,7 +537,7 @@ $(document).ready(function () {
     
             // 顯示資料夾內的圖片，並且僅顯示一個 placeholder 在最後
             let lastUploadedIndex = sortedFiles.length; //目前有的照片數
-            console.log('test', group.additionalImages[0].index, index, lastUploadedIndex);
+            // console.log('test', group.additionalImages[0].index, index, lastUploadedIndex);
             for (let i = 1; i <= lastUploadedIndex; i++) {  // 更新此處條件
                 const file = sortedFiles[i - 1];
                 const $imgDiv = $('<div>').addClass('imageItem');
@@ -567,7 +565,7 @@ $(document).ready(function () {
 
                     const $saveButtonDes = $('<button>').text('保存更新').on('click', function () {
                         const newDescription = $descriptionInput.val();
-                        console.log('displayGaleery-file.name', file.name);
+                        // console.log('displayGaleery-file.name', file.name);
                         updateImageDescription(group.folderName, file.name, newDescription);
                         $descriptionText.text(newDescription).show();
                         $descriptionInput.hide();
@@ -582,11 +580,9 @@ $(document).ready(function () {
                             accept: '.jpg'
                         }).css({ display: 'none' });
 
-                        console.log('uploadbutton clicked:',group.folderName, i - 1);
-                        console.log(file, $img);
+                        // console.log('uploadbutton clicked:',group.folderName, i - 1);
+                        // console.log(file, $img);
                         
-                        
-                        console.log('here or not');
 
                         $fileInput.on('change', async function () {
                             const xFile = this.files[0];
@@ -608,7 +604,7 @@ $(document).ready(function () {
                                     // console.log("有照片的格子長度:", hasImage.length);
                     
                                     // 使用 await 等待上傳完成
-                                    console.log('sss', group.folderName, i - 1, xFile, $img);
+                                    // console.log('sss', group.folderName, i - 1, xFile, $img);
                                     await uploadImage(group.folderName, i - 1, xFile, $img, group.index);
                                 } catch (error) {
                                     console.error('Error during image upload:', error);
@@ -640,8 +636,8 @@ $(document).ready(function () {
                         contentType: 'application/json',
                         data: JSON.stringify({ folderName, imageName, imageIndex }),
                         success: function () {
-                            console.log($imgDiv);
-                            alert('Image removed successfully, another');
+                            // console.log($imgDiv);
+                            alert('您指定的圖片已成功移除。');
                             $imgDiv.remove();
                             loadGallery(); // Reload the gallery to reflect changes
                         },
@@ -669,6 +665,7 @@ $(document).ready(function () {
                 $imageContainer.append($imgDiv);
             }
     
+            $groupDiv.append($groupNameText, $groupNameInput, $editButton, $saveButton);
             $groupDiv.append($imageContainer);
             $galleryContainer.append($groupDiv);
         });
@@ -676,15 +673,15 @@ $(document).ready(function () {
     }
 
     function updateImageDescription(folderName, fileName, newDescription) {
-        console.log('inside-file-name', fileName);
-        console.log('更新圖片描述:', folderName, fileName, newDescription);
+        // console.log('inside-file-name', fileName);
+        // console.log('更新圖片描述:', folderName, fileName, newDescription);
         $.ajax({
             url: '/api/update-image-description',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ folderName, fileName, newDescription }),
             success: function () {
-                alert('圖片描述更新成功');
+                alert('圖片描述更新成功!');
                 // 可選：重新載入圖片畫廊，讓畫面即時更新
                 loadGallery();
             },
@@ -697,7 +694,7 @@ $(document).ready(function () {
     
 
     function updateGroupName(oldFolderName, newFolderName) {
-        console.log('folderName, newName', oldFolderName, newFolderName);
+        // console.log('folderName, newName', oldFolderName, newFolderName);
         $.ajax({
             url: '/api/update-group-name',
             method: 'POST',
@@ -729,11 +726,11 @@ $(document).ready(function () {
     
         // 計算可新增的 placeholder 數量（避免超過 20）
         const placeholdersToAdd = Math.min(count, 20 - existingItemsCount);
-        console.log('placehodersToAdd', placeholdersToAdd, '新增幾張');
+        // console.log('placehodersToAdd', placeholdersToAdd, '新增幾張');
     
         // 將 AJAX 請求包裝成 Promise
         const copyImageToServer = (folderName, newFileName, folderIndex, placeholdersToAdd) => {
-            console.log('進來了 copyImageToServer');
+            // console.log('進來了 copyImageToServer');
             return new Promise((resolve, reject) => {
                 $.ajax({
                     url: `/api/copy-image`,
@@ -747,7 +744,7 @@ $(document).ready(function () {
                     }),
                     success: function (data) {
                         // console.log('成功傳回來了ok', data.imageUrl); 
-                        console.log('copyImageToServer從Server回來了');
+                        // console.log('copyImageToServer從Server回來了');
                         resolve(data.imageUrl); // 傳回圖片 URL
                     },
                     error: function (err) {
@@ -761,13 +758,13 @@ $(document).ready(function () {
         const createPlaceholder = async (placeholderIndex) => {
             // 定義上傳目標資料夾
             const targetFolder = `/uploads/${group.folderName}`;
-            console.log('要上傳的資料夾為:', targetFolder);
+            // console.log('要上傳的資料夾為:', targetFolder);
     
             try {
                 // 複製圖片並取得 URL
-                console.log('準備呼叫copyImageToServer了');
+                // console.log('準備呼叫copyImageToServer了');
                 const imageUrl = await copyImageToServer(group.folderName, `${placeholderIndex + 1}`, group.index, placeholdersToAdd);
-                console.log('呼叫完copyImageToServer了, 印出imageURL:', imageUrl);
+                // console.log('呼叫完copyImageToServer了, 印出imageURL:', imageUrl);
                 // 建立圖片區塊
                 const $imgDiv = $('<div>').addClass('imageItem');
                 
@@ -821,12 +818,12 @@ $(document).ready(function () {
     
                     $fileInput.click();
                 });
-                console.log('placeholderIndex333', placeholderIndex);
+                // console.log('placeholderIndex333', placeholderIndex);
                 const $removeButton = $('<button>').text('移除圖片').attr('data-index', placeholderIndex).on('click', function () {
                     const folderName = group.folderName;
                     const imageName = $(this).siblings('img').attr('alt');
                     const imageIndex = Number($(this).data('index'));
-                    console.log('Removing image333:', { folderName, imageName, imageIndex });
+                    // console.log('Removing image333:', { folderName, imageName, imageIndex });
 
                     $.ajax({
                         url: '/api/remove-image',
@@ -889,14 +886,14 @@ $(document).ready(function () {
     
 
     async function uploadImage(folderName, index, file, $imgElement, folderIndex) {
-        console.log('uploadImage 執行:', folderName, index, file, $imgElement, folderIndex);
+        // console.log('uploadImage 執行:', folderName, index, file, $imgElement, folderIndex);
         const fileName = Number(index) + 1;
-        console.log('fn', fileName);
+        // console.log('fn', fileName);
         return new Promise((resolve, reject) => {
             const formData = new FormData();
             formData.append('image', file);
             formData.append('imageDescription', 'Your image description'); // 描述
-            console.log('這裡印出folderIndex', index);
+            // console.log('這裡印出folderIndex', index);
             $.ajax({
                 url: `/api/upload-image/${folderIndex}/${index}`,
                 method: 'POST',
@@ -904,7 +901,7 @@ $(document).ready(function () {
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    console.log(`Image uploaded successfully for ${folderName}, index ${index}`);
+                    // console.log(`Image uploaded successfully for ${folderName}, index ${index}`);
                     $imgElement.attr('src', response.path);
                     $imgElement.attr('alt', `${fileName}.jpg`); // 更新圖片 src
                     const $caption = $imgElement.siblings('.caption');
@@ -939,7 +936,7 @@ $(document).ready(function () {
                 contentType: 'application/json',
                 data: JSON.stringify({ newFileName }),
                 success: function () {
-                    console.log(`Image renamed successfully to ${newFileName}`);
+                    // console.log(`Image renamed successfully to ${newFileName}`);
                     $img.attr('alt', newFileName); // 更新 alt 屬性
                 },
                 error: function (err) {
@@ -951,7 +948,7 @@ $(document).ready(function () {
     
 
     function uploadCoverImage(folderName, file, folderIndex) {
-        console.log('index-222', folderIndex);
+        // console.log('index-222', folderIndex);
         const formData = new FormData();
         formData.append('coverImage', file);
 
@@ -962,7 +959,7 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function () {
-                console.log('111Cover image uploaded successfully');
+                // console.log('111Cover image uploaded successfully');
                 alert('Cover image uploaded successfully');
                 loadGallery(); // Reload gallery to see the new cover image
             },
@@ -981,7 +978,7 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({ folderName, newUrl }),
             success: function () {
-                alert('Video URL updated successfully');
+                alert('影片連結成功更新！');
                 loadGallery(); // Reload gallery to see changes
             },
             error: function (err) {
