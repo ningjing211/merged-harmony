@@ -127,7 +127,7 @@ $(document).ready(function () {
                             }).css({ marginTop: '10px' });
                 
                             // Button to Upload Cover Image
-                            const $uploadButton = $('<button>').text('上傳封面圖片 ( 僅限 .jpg)').css({ marginTop: '5px' });
+                            const $uploadButton = $('<button>').text('上傳封面圖片 ( 僅限 .jpg) 4MB以下').css({ marginTop: '5px' });
                             $uploadButton.on('click', function () {
                                 const file = $coverInput[0].files[0];
                                 if (file) {
@@ -188,7 +188,7 @@ $(document).ready(function () {
                         const $imageContainer = $('<div>').addClass('imageContainer');
                         const $buttonDiv = $('<div>').addClass('uploadMoreImage');
                         const $uploadMoreButton = $('<button>').text('Upload More Images');
-                        const $caption = $('<p>').addClass('caption').html(`上傳更多圖片`);
+                        const $caption = $('<p>').addClass('caption').html(`上傳更多圖片(4MB以下, jpg檔案)(4MB以下, jpg檔案`);
                 
                         $buttonDiv.append($uploadMoreButton).append($caption);
                         $imageContainer.append($buttonDiv);
@@ -497,7 +497,7 @@ $(document).ready(function () {
             const $imageContainer = $('<div>').addClass('imageContainer');
             const $buttonDiv = $('<div>').addClass('uploadMoreImage');
             const $uploadMoreButton = $('<button>').text('Upload More Images');
-            const $caption = $('<p>').addClass('caption').html(`上傳更多圖片`);
+            const $caption = $('<p>').addClass('caption').html(`上傳更多圖片(4MB以下, jpg檔案)`);
     
             $buttonDiv.append($uploadMoreButton).append($caption);
             $imageContainer.append($buttonDiv);

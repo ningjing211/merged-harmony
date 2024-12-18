@@ -225,10 +225,12 @@ app.all('/api/admin', async (req, res) => {
 
             // Step 3: 從 Cloudinary 獲取 accounts.json
             const response = await fetch(
-                'https://res.cloudinary.com/dgjpg3g8s/raw/upload/v1234567890/uploads/accounts.json'
+                'https://res.cloudinary.com/dgjpg3g8s/raw/upload/v1734507612/uploads/accounts.json'
             );
             if (!response.ok) throw new Error('無法獲取 accounts.json');
             const accounts = await response.json();
+
+            console.log('accounts.json 內容:', JSON.stringify(accounts, null, 2));
 
             // Step 4: 驗證用戶名和密碼
             const account = accounts.find((acc) => acc.accounts === username);
