@@ -96,7 +96,7 @@ $(document).ready(function () {
             
                         const $groupNameText = $(`<h3 class="group-name">Group ${group.index} - ${group.folderName}</h3>`);
             
-                        const $editButton = $('<button>').text('編輯文字').on('click', function () {
+                        const $editButton = $('<button>').text('編輯首頁組圖標題').on('click', function () {
                             $groupNameText.hide();
                             $groupNameInput.show().focus();
                         });
@@ -118,7 +118,7 @@ $(document).ready(function () {
                                 alt: coverImage.name
                             }).css({ width: '100%', marginRight: '20px' });
                 
-                            const $titleCaption = $('<p>').addClass('caption').text(`Cover Image: ${group.folderName}.jpg`);
+                            const $titleCaption = $('<p>').addClass('caption cover-title').text(`封面照片: ${group.folderName}.jpg`);
                 
                             // Cover Image Upload Input
                             const $coverInput = $('<input>').attr({
@@ -325,6 +325,7 @@ $(document).ready(function () {
                                 console.log('Removing image:', { folderName, imageName, imageIndex });
             
                                 // 發送刪除請求
+                                $('#loading').show();
                                 $.ajax({
                                     url: '/api/remove-image',
                                     method: 'POST',
@@ -335,6 +336,7 @@ $(document).ready(function () {
                                         alert('您指定的圖片已成功移除。');
                                         $imgDiv.remove();
                                         loadGallery(); // Reload the gallery to reflect changes
+                                        $('#loading').fadeOut();
                                     },
                                     error: function (error) {
                                         console.error('Failed to remove image:', error);
@@ -403,7 +405,7 @@ $(document).ready(function () {
 
             const $groupNameText = $(`<h3 class="group-name">Group ${group.index} - ${group.folderName}</h3>`);
 
-            const $editButton = $('<button>').text('編輯文字').on('click', function () {
+            const $editButton = $('<button>').text('編輯首頁組圖標題').on('click', function () {
                 $groupNameText.hide();
                 $groupNameInput.show().focus();
             });
@@ -425,7 +427,7 @@ $(document).ready(function () {
                     alt: coverImage.name
                 }).css({ width: '100%', marginRight: '20px' });
     
-                const $titleCaption = $('<p>').addClass('caption').text(`Cover Image: ${group.folderName}.jpg`);
+                const $titleCaption = $('<p>').addClass('caption cover-title').text(`封面照片: ${group.folderName}.jpg`);
     
                 // Cover Image Upload Input
                 const $coverInput = $('<input>').attr({
@@ -434,7 +436,7 @@ $(document).ready(function () {
                 }).css({ marginTop: '10px' });
     
                 // Button to Upload Cover Image
-                const $uploadButton = $('<button>').text('上傳 / 更新 - 封面圖片 ( 僅限 .jpg)').css({ marginTop: '5px' });
+                const $uploadButton = $('<button>').text('上傳 / 更新 - 封面圖片 ( 僅限 .jpg)').css({ marginTop: '5px', height: '60px' });
                 $uploadButton.on('click', function () {
                     const file = $coverInput[0].files[0];
                     if (file) {
@@ -633,6 +635,7 @@ $(document).ready(function () {
                     console.log('Removing image:', { folderName, imageName, imageIndex });
 
                     // 發送刪除請求
+                    $('#loading').show();
                     $.ajax({
                         url: '/api/remove-image',
                         method: 'POST',
@@ -643,6 +646,7 @@ $(document).ready(function () {
                             alert('您指定的圖片已成功移除。');
                             $imgDiv.remove();
                             loadGallery(); // Reload the gallery to reflect changes
+                            $('#loading').fadeOut();
                         },
                         error: function (error) {
                             console.error('Failed to remove image:', error);
@@ -678,6 +682,7 @@ $(document).ready(function () {
     function updateImageDescription(folderName, fileName, newDescription) {
         // console.log('inside-file-name', fileName);
         // console.log('更新圖片描述:', folderName, fileName, newDescription);
+        $('#loading').show();
         $.ajax({
             url: '/api/update-image-description',
             method: 'POST',
@@ -687,6 +692,7 @@ $(document).ready(function () {
                 alert('圖片描述更新成功!');
                 // 可選：重新載入圖片畫廊，讓畫面即時更新
                 loadGallery();
+                $('#loading').fadeOut();
             },
             error: function (err) {
                 console.error('更新圖片描述失敗:', err);
@@ -827,6 +833,7 @@ $(document).ready(function () {
                     const imageName = $(this).siblings('img').attr('alt');
                     const imageIndex = Number($(this).data('index'));
                     // console.log('Removing image333:', { folderName, imageName, imageIndex });
+                    $('#loading').show();
                     $.ajax({
                         url: '/api/remove-image',
                         method: 'POST',
@@ -836,6 +843,7 @@ $(document).ready(function () {
                             alert('圖片移除成功');
                             $imgDiv.remove();
                             loadGallery();
+                            $('#loading').fadeOut();
                         },
                         error: function (error) {
                             console.error('移除圖片失敗222:', error);
@@ -956,7 +964,7 @@ $(document).ready(function () {
         // console.log('index-222', folderIndex);
         const formData = new FormData();
         formData.append('coverImage', file);
-
+        $('#loading').show();
         $.ajax({
             url: `/api/upload-cover/${folderIndex}`,
             method: 'POST',
@@ -967,6 +975,7 @@ $(document).ready(function () {
                 // console.log('111Cover image uploaded successfully');
                 alert('Cover image uploaded successfully');
                 loadGallery(); // Reload gallery to see the new cover image
+                $('#loading').fadeOut();
             },
             error: function (err) {
                 console.error('Failed to upload cover image:', err);

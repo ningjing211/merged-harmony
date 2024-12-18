@@ -52,52 +52,82 @@ cloudinary.config({
 
         // 處理剩餘圖片
         async function processRemainingImages(group, folderIndex, folderName) {
-            const renamePromises = [];
-
+            console.log('Starting to process remaining images...');
+            console.log('Initial group:', JSON.stringify(group, null, 2));
+            console.log(`Folder Index: ${folderIndex}, Folder Name: ${folderName}`);
+        
             for (let i = imageIndex; i < group.additionalImages.length; i++) {
                 const image = group.additionalImages[i];
                 const oldPublicId = `uploads/Group - ${folderIndex}/${image.name.replace('.jpg', '')}`;
-                const newName = `${i + 1}.jpg`;
-                const newPublicId = `${newName.replace('.jpg', '')}`;
-
-                console.log(`Processing image: ${image.name}`);
-
+                const newName = `${i + 1}.jpg`;  // 重新命名
+                const newPublicId = newName.replace('.jpg', '');
+        
+                console.log(`Processing image at index ${i}`);
+                console.log(`Old Public ID: ${oldPublicId}`);
+                console.log(`New Name: ${newName}`);
+                console.log(`New Public ID: ${newPublicId}`);
+        
                 // 下載圖片到記憶體
-                const imageUrl = cloudinary.url(oldPublicId, { resource_type: 'image' });
+                const imageUrl = image.path;
+                console.log(`Old Public ID: ${oldPublicId}`);
+                console.log(`Image URL for download: ${imageUrl}`);
+                
                 const response = await fetch(imageUrl);
+                if (!response.ok) {
+                    console.error(`Failed to fetch image from ${imageUrl}`);
+                    throw new Error(`Fetch failed for URL: ${imageUrl}`);
+                }
                 const imageBuffer = await response.buffer();
-
+                console.log(`Image buffer downloaded for ${oldPublicId}`);
+        
                 // 刪除 Cloudinary 中舊的圖片
-                await cloudinary.uploader.destroy(oldPublicId, { resource_type: 'image' });
-                console.log(`Deleted ${oldPublicId} from Cloudinary`);
-
+                try {
+                    await cloudinary.uploader.destroy(oldPublicId, { resource_type: 'image' });
+                    console.log(`Successfully deleted old image: ${oldPublicId}`);
+                } catch (error) {
+                    console.error(`Error deleting old image: ${oldPublicId}`, error);
+                    throw error;
+                }
+        
                 // 上傳圖片到 Cloudinary，並更新名稱
-                const uploadPromise = cloudinary.uploader.upload_stream(
-                    {
-                        public_id: newPublicId,
-                        folder: `uploads/Group - ${folderIndex}`,
-                        resource_type: 'image',
-                    },
-                    (error, result) => {
-                        if (error) {
-                            console.error(`Failed to upload ${newName}:`, error);
-                            throw error;
-                        }
-                        console.log(`Uploaded and renamed to ${newPublicId}`);
-                    }
-                );
-
-                // 將 Buffer 傳遞到上傳流
-                const bufferStream = new (require('stream').PassThrough)();
-                bufferStream.end(imageBuffer);
-                bufferStream.pipe(uploadPromise);
-
-                // 更新 metadata 並更新檔案路徑
+                try {
+                    await new Promise((resolve, reject) => {
+                        const uploadStream = cloudinary.uploader.upload_stream(
+                            {
+                                public_id: newPublicId,
+                                folder: `uploads/Group - ${folderIndex}`,
+                                resource_type: 'image',
+                            },
+                            (error, result) => {
+                                if (error) {
+                                    console.error(`Error uploading new image: ${newName}`, error);
+                                    reject(error);
+                                } else {
+                                    console.log(`Successfully uploaded and renamed image: ${newName}`);
+                                    
+                                    // 更新 image.path 為 Cloudinary 的 secure_url
+                                    image.path = result.secure_url;
+                                    console.log(`Updated image path with Cloudinary secure_url: ${image.path}`);
+                                    resolve(result);
+                                }
+                            }
+                        );
+                
+                        // 將 buffer 傳遞到上傳流
+                        const bufferStream = new (require('stream').PassThrough)();
+                        bufferStream.end(imageBuffer);
+                        bufferStream.pipe(uploadStream);
+                    });
+                } catch (error) {
+                    console.error(`Error during image upload for ${newName}`, error);
+                    throw error;
+                }
+                
+                // 更新 metadata
                 image.name = newName;
-                image.path = `/uploads/${folderName}/${newName}`;
+                console.log(`Updated image metadata:`, image);
             }
 
-            await Promise.all(renamePromises);
         }
 
         await processRemainingImages(group, folderIndex, folderName);

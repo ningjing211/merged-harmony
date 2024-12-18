@@ -20,6 +20,13 @@
   font-size: 14px;
 }
 
+.cover-title {
+  font-size: 22px;
+  background: #fafafa;
+  margin: 0;
+  padding: 20px;
+}
+
 img {
   max-width: 100%;
   height: auto;
@@ -129,7 +136,7 @@ img {
 }
 
 .group:nth-child(even) {
-  background-color: #e9cca9; /* 偶數元素的背景顏色 */
+  background-color: #678e6d; /* 偶數元素的背景顏色 */
 }
 .group-name {
   font-size: 24px;
