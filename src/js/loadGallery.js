@@ -973,7 +973,7 @@ $(document).ready(function () {
             contentType: false,
             success: function () {
                 // console.log('111Cover image uploaded successfully');
-                alert('Cover image uploaded successfully');
+                alert('您的封面照片已成功上傳更新!');
                 loadGallery(); // Reload gallery to see the new cover image
                 $('#loading').fadeOut();
             },

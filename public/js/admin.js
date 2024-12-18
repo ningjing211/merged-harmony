@@ -2,10 +2,10 @@ console.log('admin.js 已加載');
 
 $(document).ready(function () {
     // 綁定表單提交事件
-    console.log('有進來嗎？-1')
+    // console.log('有進來嗎？-1')
     $('#loginForm').on('submit', function (e) {
         e.preventDefault(); // 防止表單默認提交行為
-        console.log('有進來嗎？-2')
+        // console.log('有進來嗎？-2')
         // 獲取輸入框的值
         const username = $('#username').val().trim();
         const password = $('#password').val().trim();
@@ -24,7 +24,7 @@ $(document).ready(function () {
             headers: { 'Content-Type': 'application/json' },
             data: JSON.stringify({ username, password }), // 將帳號和密碼轉為 JSON 格式
             success: function (response) {
-                console.log('後端來囉:'); // 調試用
+                // console.log('後端來囉:'); // 調試用
                 // window.location.href = '/admin.html';
                 document.open(); // 清空目前的頁面內容
                 document.write(response); // 插入後端返回的 HTML
