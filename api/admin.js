@@ -71,12 +71,9 @@ module.exports = async function handler(req, res) {
                 const { username, password } = JSON.parse(body);
                 console.log('帳號:', username, '密碼:', password);
 
-                // Step 3: 从 Cloudinary 获取 accounts.json
-                const response = await fetch(
-                    'https://res.cloudinary.com/dgjpg3g8s/raw/upload/v1234567890/uploads/accounts.json'
-                );
-                if (!response.ok) throw new Error('無法獲取 accounts.json');
-                const accounts = await response.json();
+                const accounts = await getAccountsData();
+                console.log('accounts.json 內容:', JSON.stringify(accounts, null, 2));
+
 
                 // Step 4: 验证用户名和密码
                 const account = accounts.find((acc) => acc.accounts === username);
@@ -125,3 +122,18 @@ module.exports = async function handler(req, res) {
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 };
+
+async function getAccountsData() {
+    try {
+        const response = await fetch(
+            'https://res.cloudinary.com/dgjpg3g8s/raw/upload/v1734507612/uploads/accounts.json'
+        );
+        if (!response.ok) throw new Error('無法獲取 accounts.json');
+        return await response.json();
+    } catch (error) {
+        console.error('Cloudinary 獲取失敗，切換到本地文件:', error);
+        const localFilePath = path.join(__dirname || process.cwd(), 'public', 'accounts.json');
+        const localData = fs.readFileSync(localFilePath, 'utf-8');
+        return JSON.parse(localData);
+    }
+}
