@@ -217,7 +217,7 @@ async function getAccountsData() {
         return await response.json();
     } catch (error) {
         console.error('Cloudinary 獲取失敗，切換到本地文件:', error);
-        const localFilePath = path.join(__dirname || process.cwd(), 'public', 'accounts.json');
+        const localFilePath = path.join(__dirname, 'public', 'accounts.json');
         const localData = fs.readFileSync(localFilePath, 'utf-8');
         return JSON.parse(localData);
     }
@@ -530,7 +530,7 @@ app.get('/api/images-order', async (req, res) => {
     } catch (error) {
         console.error('Error fetching from Cloudinary, attempting local file read:', error);
         try {
-            const localFilePath = path.join(__dirname || process.cwd(), 'public', 'imagesOrder.json');
+            const localFilePath = path.join(__dirname, 'public', 'imagesOrder.json');
             const localData = await fs.promises.readFile(localFilePath, 'utf-8');
             const imagesOrder = JSON.parse(localData);
             for (const group of imagesOrder) {
