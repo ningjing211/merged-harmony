@@ -32,7 +32,6 @@ module.exports = async function handler(req, res) {
         res.json(data);
     } catch (error) {
         console.error('Error fetching JSON file from Cloudinary:', error);
-        res.status(500).send('Error reading data from Cloudinary');
         try {
             const localFilePath = path.join(process.cwd(), 'public', 'imagesOrder.json');
             const localData = fs.readFileSync(localFilePath, 'utf-8');

@@ -111,7 +111,6 @@ module.exports = async function handler(req, res) {
         res.json(imagesOrder);
     } catch (error) {
         console.error('Error fetching or updating imagesOrder.json:', error);
-        res.status(500).json({ error: 'Internal server error' });
         try {
             const localFilePath = path.join(process.cwd(), 'public', 'imagesOrder.json');
             const localData = fs.readFileSync(localFilePath, 'utf-8');
