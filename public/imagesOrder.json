@@ -755,31 +755,19 @@
         "name": "1.jpg",
         "path": "/uploads/Lexus Journey By The Sea/1.jpg",
         "index": 0,
-        "imageDescription": "AAA"
+        "imageDescription": "美滿的燈光與氣氛，一場盛宴即將開始"
       },
       {
         "name": "2.jpg",
         "path": "/uploads/Lexus Journey By The Sea/2.jpg",
         "index": 1,
-        "imageDescription": "BBB"
+        "imageDescription": "航向蔚藍的海與未來"
       },
       {
         "name": "3.jpg",
         "path": "/uploads/Lexus Journey By The Sea/3.jpg",
         "index": 2,
-        "imageDescription": "CCC"
-      },
-      {
-        "name": "4.jpg",
-        "path": "/uploads/Lexus Journey By The Sea/4.jpg",
-        "index": 3,
-        "imageDescription": "DDD"
-      },
-      {
-        "name": "5.jpg",
-        "path": "/uploads/Lexus Journey By The Sea/5.jpg",
-        "index": 4,
-        "imageDescription": "EEE"
+        "imageDescription": "星光與對極致體驗追求的理想"
       }
     ],
     "index": 10,
