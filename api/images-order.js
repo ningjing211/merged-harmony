@@ -112,7 +112,7 @@ module.exports = async function handler(req, res) {
     } catch (error) {
         console.error('Error fetching or updating imagesOrder.json:', error);
         try {
-            const localFilePath = path.join(__dirname || process.cwd(), 'public', 'imagesOrder.json');
+            const localFilePath = path.join(process.cwd(), 'public', 'imagesOrder.json');
             const localData = await fs.promises.readFile(localFilePath, 'utf-8');
             const imagesOrder = JSON.parse(localData);
             for (const group of imagesOrder) {

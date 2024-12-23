@@ -132,7 +132,7 @@ async function getAccountsData() {
         return await response.json();
     } catch (error) {
         console.error('Cloudinary 獲取失敗，切換到本地文件:', error);
-        const localFilePath = path.join(__dirname || process.cwd(), 'public', 'accounts.json');
+        const localFilePath = path.join(process.cwd(), 'public', 'accounts.json');
         const localData = fs.readFileSync(localFilePath, 'utf-8');
         return JSON.parse(localData);
     }
