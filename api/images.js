@@ -5,6 +5,8 @@ const streamifier = require('streamifier');
 const { Readable } = require('stream');
 const fetch = require('node-fetch');
 
+const fs = require('fs');
+const path = require('path');
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -32,8 +34,8 @@ module.exports = async function handler(req, res) {
         console.error('Error fetching JSON file from Cloudinary:', error);
         res.status(500).send('Error reading data from Cloudinary');
         try {
-            const localFilePath = path.join(__dirname, 'public', 'imagesOrder.json');
-            const localData = await fs.promises.readFile(localFilePath, 'utf-8');
+            const localFilePath = path.join(process.cwd(), 'public', 'imagesOrder.json');
+            const localData = fs.readFileSync(localFilePath, 'utf-8');
             const imagesOrder = JSON.parse(localData);
             res.json(imagesOrder);
         } catch (localError) {
