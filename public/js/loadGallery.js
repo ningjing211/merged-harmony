@@ -436,7 +436,7 @@ $(document).ready(function () {
                 }).css({ marginTop: '10px' });
     
                 // Button to Upload Cover Image
-                const $uploadButton = $('<button>').text('上傳 / 更新 - 封面圖片 ( 僅限 .jpg)').css({ marginTop: '5px', height: '60px' });
+                const $uploadButton = $('<button>').text('上傳 / 更新 - 封面圖片 ( 建議4MB以下, jpg檔案)').css({ marginTop: '5px', height: '60px' });
                 $uploadButton.on('click', function () {
                     const file = $coverInput[0].files[0];
                     if (file) {

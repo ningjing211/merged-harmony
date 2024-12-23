@@ -31,5 +31,14 @@ module.exports = async function handler(req, res) {
     } catch (error) {
         console.error('Error fetching JSON file from Cloudinary:', error);
         res.status(500).send('Error reading data from Cloudinary');
+        try {
+            const localFilePath = path.join(__dirname, 'public', 'imagesOrder.json');
+            const localData = await fs.promises.readFile(localFilePath, 'utf-8');
+            const imagesOrder = JSON.parse(localData);
+            res.json(imagesOrder);
+        } catch (localError) {
+            console.error('Error reading local imagesOrder.json file:', localError);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 }

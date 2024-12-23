@@ -284,9 +284,20 @@ app.get('/api/images', async (req, res) => {
         res.json(data);
     } catch (error) {
         console.error('Error fetching JSON file from Cloudinary:', error);
-        res.status(500).send('Error reading data from Cloudinary');
+        
+        // 如果無法從 Cloudinary 獲取資料，則改為從本地端讀取
+        try {
+            const localFilePath = path.join(__dirname, 'public', 'imagesOrder.json');
+            const localData = await fs.promises.readFile(localFilePath, 'utf-8');
+            const imagesOrder = JSON.parse(localData);
+            res.json(imagesOrder);
+        } catch (localError) {
+            console.error('Error reading local imagesOrder.json file:', localError);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 });
+
 
 // 動態設置上傳目標資料夾
 // const storage = multer.diskStorage({
@@ -487,8 +498,16 @@ app.get('/api/images-order', async (req, res) => {
         // 返回更新後的數據
         res.json(imagesOrder);
     } catch (error) {
-        console.error('Error fetching or updating imagesOrder.json:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error fetching from Cloudinary, attempting local file read:', error);
+        try {
+            const localFilePath = path.join(__dirname, 'public', 'imagesOrder.json');
+            const localData = await fs.promises.readFile(localFilePath, 'utf-8');
+            const imagesOrder = JSON.parse(localData);
+            res.json(imagesOrder);
+        } catch (localError) {
+            console.error('Error reading local imagesOrder.json file:', localError);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 });
 
