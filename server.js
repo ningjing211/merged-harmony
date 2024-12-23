@@ -167,7 +167,25 @@ app.post('/api/login', async (req, res) => {
         res.status(200).json({ message: '登入成功' });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ message: '系統錯誤，請稍後再試' });
+        try {
+            const localFilePath = path.join(process.cwd(), 'public', 'accounts.json');
+            const localData = fs.readFileSync(localFilePath, 'utf-8');
+            const accounts = JSON.parse(localData);
+
+            const account = accounts.find((acc) => acc.accounts === username);
+            if (!account) {
+                return res.status(401).json({ message: '查無此帳號' });
+            }
+            if (account.password !== password) {
+                return res.status(401).json({ message: '密碼錯誤' });
+            }
+
+            req.session.username = username;
+            res.status(200).json({ message: '登入成功' });
+        } catch (localError) {
+            console.error('Error reading local accounts.json file:', localError);
+            res.status(500).json({ message: '系統錯誤，請稍後再試' });
+        }
     }
 });
 
