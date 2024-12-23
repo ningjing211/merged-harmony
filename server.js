@@ -138,7 +138,7 @@ app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// 定義 /api/login 路由
+// 定義 /api/login 路由 // 12-23-2024好像沒有在用
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body; // 從 body 提取數據
     console.log('帳號:', username, '密碼:', password);
@@ -168,8 +168,8 @@ app.post('/api/login', async (req, res) => {
     } catch (error) {
         console.error('Login error:', error);
         try {
-            const localFilePath = path.join(process.cwd(), 'public', 'accounts.json');
-            const localData = fs.readFileSync(localFilePath, 'utf-8');
+            const localFilePath = path.join(__dirname, 'public', 'accounts.json');
+            const localData = await fs.promises.readFile(localFilePath, 'utf-8');
             const accounts = JSON.parse(localData);
 
             const account = accounts.find((acc) => acc.accounts === username);
@@ -207,6 +207,23 @@ app.post('/api/login', async (req, res) => {
 //     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 // });
 
+// 獲取帳號資料的函式
+async function getAccountsData() {
+    try {
+        const response = await fetch(
+            'https://res.cloudinary.com/dgjpg3g8s/raw/upload/v1734507612/uploads/accounts.json'
+        );
+        if (!response.ok) throw new Error('無法獲取 accounts.json');
+        return await response.json();
+    } catch (error) {
+        console.error('Cloudinary 獲取失敗，切換到本地文件:', error);
+        const localFilePath = path.join(__dirname || process.cwd(), 'public', 'accounts.json');
+        const localData = fs.readFileSync(localFilePath, 'utf-8');
+        return JSON.parse(localData);
+    }
+}
+
+
 // 處理 /api/admin 路由
 app.all('/api/admin', async (req, res) => {
     // Step 1: 檢查是否有 Cookie
@@ -241,13 +258,7 @@ app.all('/api/admin', async (req, res) => {
             const { username, password } = req.body;
             console.log('帳號:', username, '密碼:', password);
 
-            // Step 3: 從 Cloudinary 獲取 accounts.json
-            const response = await fetch(
-                'https://res.cloudinary.com/dgjpg3g8s/raw/upload/v1734507612/uploads/accounts.json'
-            );
-            if (!response.ok) throw new Error('無法獲取 accounts.json');
-            const accounts = await response.json();
-
+            const accounts = await getAccountsData();
             console.log('accounts.json 內容:', JSON.stringify(accounts, null, 2));
 
             // Step 4: 驗證用戶名和密碼
@@ -418,6 +429,7 @@ app.post('/api/upload-cover/:folderIndex', coverUpload.single('coverImage'), asy
 });
 
 
+
 // API 路由：讀取 imagesOrder.json 並提供給前端
 // server.js
 app.get('/api/images-order', async (req, res) => {
@@ -518,9 +530,15 @@ app.get('/api/images-order', async (req, res) => {
     } catch (error) {
         console.error('Error fetching from Cloudinary, attempting local file read:', error);
         try {
-            const localFilePath = path.join(__dirname, 'public', 'imagesOrder.json');
+            const localFilePath = path.join(__dirname || process.cwd(), 'public', 'imagesOrder.json');
             const localData = await fs.promises.readFile(localFilePath, 'utf-8');
             const imagesOrder = JSON.parse(localData);
+            for (const group of imagesOrder) {
+                const folderName = group.folderName;
+                group.files = group.files || [];
+                group.files.unshift({ name: folderName, path: group.path, isTitle: true });
+            }
+            
             res.json(imagesOrder);
         } catch (localError) {
             console.error('Error reading local imagesOrder.json file:', localError);
